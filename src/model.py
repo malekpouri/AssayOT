@@ -211,11 +211,20 @@ def validation_nll(activity_logit: torch.Tensor, y: torch.Tensor,
 
 def nnpu_loss(logit: torch.Tensor, is_positive: torch.Tensor, prior: float,
               beta: float = 0.0) -> torch.Tensor:
-    """Non-negative PU risk (Kiryo et al. 2017).
+    """Non-negative PU risk estimator (Kiryo et al. 2017).
+
+        R = pi * E_P[l(f, +1)] + max(0, E_U[l(f, -1)] - pi * E_P[l(f, -1)])
+
+    with the logistic loss. This is the risk estimator itself, with beta = 0 and
+    without the gradient-reversal refinement (gamma) of the original paper's
+    algorithm: when the empirical negative risk goes below zero the term is clamped
+    rather than stepped against. The clamp is what prevents the unbounded negative
+    risk that plain unbiased PU suffers from, which is the property the baseline needs.
 
     Used for the level-2 baseline. It assumes positives are labelled completely at
     random, which is exactly the assumption this paper argues is false here, so it is
-    reported as a constrained baseline rather than as the proposed method.
+    reported as a constrained baseline rather than as the proposed method, and its
+    sensitivity to the assumed class prior is swept rather than fixed.
     """
     pos = is_positive.bool()
     sp = F.softplus(-logit)   # -log sigmoid(logit)

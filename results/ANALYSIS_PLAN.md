@@ -126,3 +126,12 @@ component of the base editor, and 156 of them reach the external labelled set. A
 whose read-out is an editor rather than a double-strand break does not belong in a study
 scoped to conventional SpCas9 cleavage. Found while validating the cross-technology
 split, before those protocols were run.
+
+**A5.** The unseen-technology protocol is reported as largely a restatement of the
+unseen-study protocol, not as independent evidence. In the external labelled set every
+usable study contributes exactly one technology, and only Digenome-seq (5 studies) and
+CIRCLE-seq (3 studies) appear in more than one study, so for the remaining units
+"hold out a technology" and "hold out a study" are the same experiment. The plan listed
+insufficient technology overlap as a reason to drop the full-separation claim; that
+condition is met and the claim is dropped. Established by inspecting the label
+structure before the transfer protocols were run.

@@ -7,6 +7,7 @@
     python -m src.run study         unseen study, on the external labelled set
     python -m src.run tech          unseen technology
     python -m src.run semisynth     masking experiment with a known mechanism
+    python -m src.run prior         PU class-prior sensitivity sweep
     python -m src.run identify      identifiability / sensitivity analysis
     python -m src.run all
 
@@ -369,6 +370,44 @@ def protocol_semisynth(epochs: int = EPOCHS, hide_frac: float = 0.5) -> None:
 # identifiability
 # ---------------------------------------------------------------------------
 
+def protocol_prior(epochs: int = EPOCHS,
+                   priors=(0.005, 0.01, 0.02, 0.05, 0.10)) -> None:
+    """Sensitivity of the PU baseline to the assumed class prior.
+
+    The prior is not identifiable from positive-unlabelled data without further
+    assumptions, so a PU result reported at one value of it is reporting a choice.
+    Fitted on a single unseen-sgRNA fold, which is enough to show the direction and
+    size of the dependence.
+    """
+    fr, cand, obs = _frame()
+    folds = X.split_by_guide(fr)
+    tr_g = folds.loc[folds.fold != 0, "guide_sample"]
+    te_g = set(folds.loc[folds.fold == 0, "guide_sample"])
+    gs = fr.obs[(fr.obs.assay_id == "GUIDEseq")
+                & fr.obs.guide_sample.isin(te_g)].copy()
+    if not len(gs) or gs.s.sum() == 0:
+        print("no evaluable in-cell rows on fold 0")
+        return
+    rows = []
+    for prior in priors:
+        model = X.train(fr, tr_g, level="L2_nnpu", epochs=epochs, ratio=RATIO,
+                        prior=prior, seed=C.SEED, verbose=False)
+        p = X.predict(model, fr, gs, context=C.CTX_INCELL, assay="GUIDEseq")
+        pg = M.per_guide_ranking(p, "p_activity", "s")
+        s = M.macro_summary(pg)
+        s["prior"] = prior
+        rows.append(s)
+        ap = s.loc[s.metric == "ap", "value"].iloc[0]
+        print(f"  prior={prior:.3f}  AP={ap:.4f}  mean p={p.p_activity.mean():.4f}")
+        del model
+        torch.cuda.empty_cache()
+    out = pd.concat(rows, ignore_index=True)
+    out.to_csv(C.RESULTS / "metrics_prior.csv", index=False)
+    print("\n== PU class-prior sensitivity (unseen sgRNA, fold 0) ==")
+    print(out[out.metric.isin(["ap", "auroc"])]
+          .pivot(index="prior", columns="metric", values="value").round(4).to_string())
+
+
 def protocol_identify(epochs: int = EPOCHS, n_seeds: int = 3) -> None:
     """Is the activity/detection split pinned down by the data, or only their product?
 
@@ -444,6 +483,8 @@ def main() -> None:
         protocol_study(by="assay_type")
     if what in ("semisynth", "all"):
         protocol_semisynth()
+    if what in ("prior", "all"):
+        protocol_prior()
     if what in ("identify", "all"):
         protocol_identify()
     print(f"\n[{what}] done in {(time.time() - t0) / 60:.1f} min")

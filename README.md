@@ -32,7 +32,10 @@ Part of the answer here is negative, and reported as such.
 | `src/baselines.py` | mismatch count, position-weighted score, published CFD |
 | `src/metrics.py` | per-sgRNA ranking, macro-averages, guide-level bootstrap, calibration, risk–coverage |
 | `src/run.py` | one protocol per subcommand |
-| `src/figures.py`, `src/tables.py` | figures and LaTeX tables |
+| `src/figures.py`, `src/tables.py` | figures and LaTeX tables, generated from the result CSVs so the paper cannot drift from the numbers |
+| `src/summary.py` | one-screen digest of every result file |
+| `src/selfcheck.py` | asserts the invariants the paper's claims rest on; run it after `prep` and `scan` |
+| `src/cfd_to_json.py` | one-off conversion of the published CFD pickles to JSON, behind a restricted unpickler |
 | `results/` | per-row predictions, metric CSVs, `ANALYSIS_PLAN.md` |
 | `paper/` | journal-neutral LaTeX manuscript |
 | `paper-csbj/` | the same manuscript formatted for *Computational and Structural Biotechnology Journal* |
@@ -87,8 +90,12 @@ mkdir -p "$D/crispr_offt" && cd "$D/crispr_offt" && for f in \
 mkdir -p "$D/reference_hg38" && curl -L -o "$D/reference_hg38/hg38.fa.gz" \
   "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz"
 
-# CFD lookup tables (Doench et al. 2016), as JSON rather than pickles
-# see src/baselines.py; the loader checks them against the published values
+# CFD lookup tables (Doench et al. 2016). They circulate as protocol-0 pickles;
+# convert once behind a restricted unpickler so nothing unpickles third-party
+# data at run time. The converter and the loader both assert the published values.
+mkdir -p "$D/cfd" && cd "$D/cfd" && for f in mismatch_score.pkl pam_scores.pkl; do
+  curl -LO "https://raw.githubusercontent.com/mahmudhera/kRISP-mER/master/kRISP-meR_source/krispmer/CFD_scoring/$f"; done
+cd - && .venv/bin/python -m src.cfd_to_json
 ```
 
 ## Reproduce
@@ -100,12 +107,14 @@ uv pip install --python .venv/bin/python torch --index-url https://download.pyto
 uv pip install --python .venv/bin/python -r requirements.txt
 
 .venv/bin/python -m src.run prep        # harmonise  -> PROVENANCE.md
-.venv/bin/python -m src.run scan        # candidate space (GPU, ~30 min)
+.venv/bin/python -m src.run scan        # candidate space (GPU, ~2.5 min)
+.venv/bin/python -m src.selfcheck       # assert the invariants hold
 .venv/bin/python -m src.run guide       # unseen sgRNA
 .venv/bin/python -m src.run validated   # confirmatory assay, leave-one-sgRNA-out
 .venv/bin/python -m src.run study       # unseen study
 .venv/bin/python -m src.run tech        # unseen technology
 .venv/bin/python -m src.run semisynth   # masking with a known mechanism
+.venv/bin/python -m src.run prior       # PU class-prior sensitivity
 .venv/bin/python -m src.run identify    # identifiability / sensitivity
 .venv/bin/python -m src.figures && .venv/bin/python -m src.tables
 ```
