@@ -1,0 +1,28 @@
+.venv
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Large inputs are not redistributed; `src/config.py` points at a local data folder
+# and the README gives the download commands.
+datasets/
+*.fa
+*.fa.gz
+*.fai
+
+# LaTeX build products (the compiled PDFs themselves are tracked)
+*.aux
+*.log
+*.out
+*.blg
+*.bbl
+*.toc
+*.fdb_latexmk
+*.fls
+*.spl
+*.synctex.gz
+
+# Model checkpoints are reproducible from the frozen seed
+*.pt
+*.ckpt

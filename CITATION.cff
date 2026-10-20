@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use this software or the harmonised benchmark, please cite the paper below."
+title: "AssayOT: assay-aware learning from incomplete labels for cross-study CRISPR-Cas9 off-target prediction"
+abstract: >-
+  Code, harmonised provenance-aware benchmark and manuscript for separating cellular
+  cleavage activity from laboratory detection in CRISPR-Cas9 off-target data, under
+  incomplete labels and cross-study shift.
+type: software
+authors:
+  - family-names: Malekpouri
+    given-names: Mohammad
+    orcid: "https://orcid.org/0009-0001-6278-6163"
+    affiliation: "Department of Computer Engineering, BA.C., Islamic Azad University, Bandar Abbas, Iran"
+    email: m.malekpouri@iau.ir
+  - family-names: Lotfi
+    given-names: Somayeh
+    orcid: "https://orcid.org/0000-0002-7218-5388"
+    affiliation: "Department of Computer Engineering, BA.C., Islamic Azad University, Bandar Abbas, Iran"
+license: MIT
+keywords:
+  - CRISPR-Cas9
+  - off-target prediction
+  - positive-unlabelled learning
+  - identifiability
+  - distribution shift
+  - genome editing
