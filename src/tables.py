@@ -18,7 +18,7 @@ TAB = C.PAPER / "tables"
 TAB.mkdir(parents=True, exist_ok=True)
 
 PRETTY = {
-    "L1_supervised": "L1 supervised (unreported = negative)",
+    "L1_supervised": "L1 supervised (unreported = neg.)",
     "L2_nnpu": "L2 nnPU",
     "L3_assay": "L3 assay-aware (proposed)",
     "L3_assay_pilot_only": "L3 assay-aware, single training study",
@@ -31,6 +31,13 @@ PRETTY = {
     "baseline_cfd": "CFD",
     "baseline_changeseq_reads": "in-vitro read depth",
 }
+
+
+#: Printed names for the metric columns.
+METRIC_LABEL = {"ap": "AP", "auroc": "AUROC", "recall@10": "R@10",
+                "recall@50": "R@50", "recall@100": "R@100",
+                "precision@10": "P@10", "precision@50": "P@50",
+                "precision@100": "P@100"}
 
 
 def pretty(m: str) -> str:
@@ -160,8 +167,8 @@ def table_metrics(tag: str, metrics=("ap", "auroc", "recall@100"),
                         r"groups with 95\% bootstrap intervals over those groups.")
         + r"}",
         rf"\label{{tab:{tag}}}",
-        r"\begin{tabular}{l" + "r" * len(cols) + r"}\toprule",
-        "Model & " + " & ".join(c.replace("@", "@") for c in cols) + r" \\\midrule",
+        r"\begin{tabular}{@{}l" + "r" * len(cols) + r"@{}}\toprule",
+        "Model & " + " & ".join(METRIC_LABEL.get(c, c) for c in cols) + r" \\\midrule",
     ]
     for m in models:
         cells = []

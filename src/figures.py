@@ -54,6 +54,21 @@ def _save(fig, name):
     print(f"  {name}")
 
 
+def _placeholder(name: str, reason: str) -> None:
+    """Emit a visibly empty figure when its data has not been produced yet.
+
+    The manuscript references every result figure, and `includegraphics` on a missing
+    file is a hard error, so a partial run would otherwise fail to build at all. A
+    placeholder keeps the document compiling and makes the gap obvious in the PDF
+    rather than silent.
+    """
+    fig, ax = plt.subplots(figsize=(4.0, 1.4))
+    ax.axis("off")
+    ax.text(0.5, 0.5, f"[{name} not generated]\n{reason}", ha="center", va="center",
+            color=MUTED, fontsize=8)
+    _save(fig, name)
+
+
 # ---------------------------------------------------------------------------
 
 def fig_floor_sensitivity():
@@ -113,19 +128,20 @@ def _forest(ax, d, metric, title, highlight=("L3_assay",)):
 
 def fig_protocol(tag: str, metric: str = "ap", name: str | None = None):
     p = C.RESULTS / f"metrics_{tag}.csv"
+    out = name or f"fig_{tag}_{metric}"
     if not p.exists():
-        return
+        return _placeholder(out, f"run `src.run {tag}`")
     d = pd.read_csv(p)
     n = d[d.metric == metric].model.nunique()
     fig, ax = plt.subplots(figsize=(4.6, 0.3 * max(4, n) + 1.0))
     _forest(ax, d, metric, f"{tag}: macro {metric} with 95% guide bootstrap CI")
-    _save(fig, name or f"fig_{tag}_{metric}")
+    _save(fig, out)
 
 
 def fig_identifiability():
     p = C.RESULTS / "identifiability.csv"
     if not p.exists():
-        return
+        return _placeholder("fig5_identifiability", "run `src.run identify`")
     d = pd.read_csv(p)
     fig, ax = plt.subplots(figsize=(4.4, 3.0))
     ax.scatter(d.report_loglik, d.activity_sd_across_seeds, s=55, color=BLUE,
@@ -143,7 +159,7 @@ def fig_identifiability():
 def fig_semisynth():
     p = C.RESULTS / "metrics_semisynth.csv"
     if not p.exists():
-        return
+        return _placeholder("fig6_semisynth", "run `src.run semisynth`")
     d = pd.read_csv(p)
     d = d[d.metric == "ap"]
     if not len(d):
@@ -172,7 +188,7 @@ def fig_semisynth():
 def fig_calibration():
     p = C.RESULTS / "calibration_validated.csv"
     if not p.exists():
-        return
+        return _placeholder("fig7_calibration", "run `src.run validated`")
     d = pd.read_csv(p)
     fig, ax = plt.subplots(figsize=(3.6, 3.0))
     ax.plot([0, 1], [0, 1], color=MUTED, lw=0.8, ls=(0, (3, 2)),
@@ -196,7 +212,7 @@ def fig_riskcoverage():
     """
     p = C.RESULTS / "riskcoverage_validated.csv"
     if not p.exists():
-        return
+        return _placeholder("fig8_risk_coverage", "run `src.run validated`")
     d = pd.read_csv(p)
     keep = [m for m in ("L1_supervised", "L2_nnpu", "L3_assay") if m in set(d.model)]
     if not keep:
