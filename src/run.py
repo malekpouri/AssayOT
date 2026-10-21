@@ -128,6 +128,24 @@ def _summarise_guide(allp: pd.DataFrame) -> None:
         pg.to_csv(C.RESULTS / f"perguide_guide_{name}.csv", index=False)
     out = pd.concat(rows, ignore_index=True)
     out.to_csv(C.RESULTS / "metrics_guide.csv", index=False)
+
+    # Ablations are fitted on one fold only, so they must not be compared against
+    # primary levels averaged over all five: that would contrast different sets of
+    # held-out sgRNAs. Emit a second table in which every model is restricted to the
+    # ablation folds, and let the ablation table read that one.
+    abl = allp[allp.fold.isin(ABLATION_FOLDS)]
+    arows = []
+    for level, sub in abl.groupby("level", observed=True):
+        pg = M.per_guide_ranking(sub, "p_activity", "s")
+        s = M.macro_summary(pg)
+        s["model"] = level
+        arows.append(s)
+        pg.to_csv(C.RESULTS / f"perguide_ablation_{level}.csv", index=False)
+    pd.concat(arows, ignore_index=True).to_csv(
+        C.RESULTS / "metrics_guide_ablation.csv", index=False)
+    print(f"\nablation comparison restricted to fold(s) {list(ABLATION_FOLDS)}: "
+          f"{abl.guide_sample.nunique()} held-out sgRNAs")
+
     print("\n== unseen-sgRNA protocol: macro over held-out sgRNAs ==")
     piv = out[out.metric.isin(["ap", "auroc", "recall@100"])].pivot(
         index="model", columns="metric", values="value")

@@ -162,8 +162,10 @@ def table_metrics(tag: str, metrics=("ap", "auroc", "recall@100"),
     piv = {m: g.set_index("model") for m, g in d.groupby("metric")}
     models = list(dict.fromkeys(d.model))
     cols = [m for m in metrics if m in piv]
+    # three value-plus-interval columns do not fit the text block at \small
+    size = r"\footnotesize" if len(cols) > 2 else r"\small"
     body = [
-        r"\begin{table}[htbp]\centering\small",
+        r"\begin{table}[htbp]\centering" + size,
         r"\caption{" + (caption or f"Protocol {tag}: macro averages over held-out "
                         r"groups with 95\% bootstrap intervals over those groups.")
         + r"}",
@@ -182,7 +184,10 @@ def table_metrics(tag: str, metrics=("ap", "auroc", "recall@100"),
 
 
 def table_ablation() -> None:
-    p = C.RESULTS / "metrics_guide.csv"
+    # fold-matched file if present, else fall back
+    p = C.RESULTS / "metrics_guide_ablation.csv"
+    if not p.exists():
+        p = C.RESULTS / "metrics_guide.csv"
     if not p.exists():
         return
     d = pd.read_csv(p)
@@ -193,7 +198,10 @@ def table_ablation() -> None:
     body = [
         r"\begin{table}[htbp]\centering\small",
         r"\caption{Ablations on the unseen-sgRNA protocol, macro average precision with "
-        r"95\% bootstrap intervals over held-out sgRNAs.}",
+        r"95\% bootstrap intervals over held-out sgRNAs. Every row is computed on the "
+        r"same held-out fold, so the configurations are compared on identical sgRNAs; "
+        r"the values therefore differ from Table~\ref{tab:guide}, which averages the "
+        r"full-model rows over all five folds.}",
         r"\label{tab:ablation}",
         r"\begin{tabular}{lr}\toprule",
         r"Configuration & Average precision \\\midrule",
