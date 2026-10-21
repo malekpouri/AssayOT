@@ -78,6 +78,20 @@ def main() -> None:
                 == C.STATUS_UNINTERPRETABLE).all()),
           f"{int(amb.indel_treatment_pct.isna().sum())} rows lack a measurement")
 
+    # --- the pilot must not re-enter through the external set ---------------
+    dup = obs[(obs.study_id != "Lazzarotto2020")
+              & obs.in_pilot.fillna(False).astype(bool)]
+    check("the database's re-publication of the pilot is flagged",
+          len(dup) > 0, f"{len(dup):,} external rows duplicate the pilot")
+    try:
+        from . import run as R
+    except ImportError:
+        from src import run as R
+    lab = R.external_labelled(obs, pairs)
+    check("the external labelled set excludes the re-published pilot",
+          not lab.in_pilot.fillna(False).astype(bool).any(),
+          f"{len(lab):,} rows across {lab.study_id.nunique()} studies")
+
     # --- boolean flags are real booleans ------------------------------------
     check("boolean flags are bool dtype, so `~mask` is not a bitwise not",
           pairs.has_bulge.dtype == bool, str(pairs.has_bulge.dtype))
