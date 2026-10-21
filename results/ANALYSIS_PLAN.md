@@ -144,3 +144,11 @@ are duplicates of the pilot. Left in, the pilot would have entered training twic
 different study id. After the filter, 26,147 external reported-positive rows remain
 across 44 studies, and the external labelled set is 1,208 rows across 32 studies.
 Found while verifying a figure caption, before the transfer protocols were run.
+
+**A7.** sgRNA identity is resolved by target sequence rather than by sample name. Four
+names in the GUIDE-seq sheet (`CTLA4site_2`, `LAG_site_3`, `CBLB_site_10`,
+`CBLC_site_4`) appear nowhere in the CHANGE-seq sheet; each resolves to exactly one
+known sgRNA by its target sequence. Matching on the name alone silently discarded 17
+cellular detections, and made the number of sgRNAs with cellular profiling look like 60
+when it is 57. Found while reconciling a row count between the source table and the
+harmonised observations.

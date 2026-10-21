@@ -72,7 +72,7 @@ def table_data() -> None:
     groups = [
         (f"Pilot study (one laboratory, 110 sgRNAs)", [
             prow("CHANGEseq", "in vitro", "cell-free genomic DNA"),
-            prow("GUIDEseq", "in cell", "run for 60 of the 110 sgRNAs"),
+            prow("GUIDEseq", "in cell", "run for 57 of the 110 sgRNAs"),
             prow("TagSeq", "in cell", "confirmatory; selection rule documented"),
         ]),
         (f"External database ({ext.study_id.nunique()} studies, "

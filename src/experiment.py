@@ -119,7 +119,7 @@ def build_frame(guides: set[str] | None = None) -> Frame:
     a["context"] = C.CTX_INVITRO
     a["s"] = a.pair_id.isin(cs_det).astype(np.float32)
 
-    # GUIDE-seq was run for 60 sgRNAs only. For the other 50 a site is *unobserved*
+    # GUIDE-seq was run for a subset of the sgRNAs only. For the rest a site is *unobserved*
     # in cell, so those rows are simply absent rather than present with s = 0.
     b = base[base.guide_sample.isin(gs_guides)].copy()
     b["assay_id"] = "GUIDEseq"

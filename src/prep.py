@@ -337,14 +337,37 @@ def build(tabs: ChangeSeqTables, val_called: pd.DataFrame) -> tuple[pd.DataFrame
     guides = tabs.guides.set_index("sample")
     pat = guides["target_pattern"].to_dict()
     spacer = guides["protospacer"].to_dict()
+    # The released tables are not consistent about sgRNA names: the GUIDE-seq sheet
+    # contains `CTLA4site_2`, `LAG_site_3` and two mislabelled CBLB sites that appear
+    # nowhere in the detection sheet. Each one carries its target sequence in the same
+    # row, and each resolves to exactly one known sgRNA by that sequence, so identity
+    # is taken from the sequence and the name is only a fallback. Matching on the name
+    # alone silently discards 17 in-cell detections, which are the scarcest rows here.
+    by_pattern: dict[str, str] = {}
+    for s, p in pat.items():
+        by_pattern.setdefault(str(p).upper().strip(), s)
+
+    aliases: dict[str, str] = {}
+
+    def resolve(sample, target_pattern=None):
+        if sample in spacer:
+            return sample
+        if sample in aliases:
+            return aliases[sample]
+        alias = by_pattern.get(str(target_pattern).upper().strip())
+        if alias is not None:
+            aliases[sample] = alias
+        return alias
 
     pair_rows: dict[str, dict] = {}
     obs_rows: list[dict] = []
 
-    def register(chrom, start1, end1, strand, sample, site_seq) -> str:
-        guide = spacer.get(sample)
-        if guide is None:
+    def register(chrom, start1, end1, strand, sample, site_seq,
+                 target_pattern=None) -> str:
+        sample = resolve(sample, target_pattern)
+        if sample is None:
             return ""
+        guide = spacer[sample]
         key = pair_key(chrom, int(start1), int(end1), strand, guide)
         if key not in pair_rows:
             n_proto, n_pam, mmpat = mismatch_profile(site_seq, pat[sample])
@@ -376,7 +399,8 @@ def build(tabs: ChangeSeqTables, val_called: pd.DataFrame) -> tuple[pd.DataFrame
     # --- CHANGE-seq: in vitro, reported positives ---------------------------
     cs = tabs.changeseq
     for r in cs.itertuples(index=False):
-        key = register(r.chrom, r.start1, r.end1, r.strand, r.sample, r.site_seq)
+        key = register(r.chrom, r.start1, r.end1, r.strand, r.sample, r.site_seq,
+                       getattr(r, "target_pattern", None))
         if not key:
             continue
         obs_rows.append(dict(
@@ -393,7 +417,8 @@ def build(tabs: ChangeSeqTables, val_called: pd.DataFrame) -> tuple[pd.DataFrame
     # --- GUIDE-seq: in cell, reported positives -----------------------------
     gs = tabs.guideseq
     for r in gs.itertuples(index=False):
-        key = register(r.chrom, r.start1, r.end1, r.strand, r.sample, r.site_seq)
+        key = register(r.chrom, r.start1, r.end1, r.strand, r.sample, r.site_seq,
+                       getattr(r, "target_pattern", None))
         if not key:
             continue
         obs_rows.append(dict(
@@ -407,9 +432,19 @@ def build(tabs: ChangeSeqTables, val_called: pd.DataFrame) -> tuple[pd.DataFrame
             reported_distance=float(r.distance) if pd.notna(r.distance) else np.nan,
         ))
 
+    if aliases:
+        log(f"\n- {len(aliases)} sgRNA names in the GUIDE-seq sheet are absent from "
+            "the detection sheet and were resolved by target sequence, each to exactly "
+            "one known sgRNA: "
+            + ", ".join(f"`{k}` -> `{v}`" for k, v in sorted(aliases.items()))
+            + ". Matching on the name alone would silently discard these in-cell "
+              "detections.")
+
     # Which sgRNAs were actually run through GUIDE-seq? Only for those sgRNAs is a
     # non-detection informative at all; for every other sgRNA the site is unobserved.
-    guideseq_samples = set(gs["sample"].unique())
+    guideseq_samples = {s for s in (resolve(x, p) for x, p in
+                        zip(gs["sample"], gs.get("target_pattern", gs["sample"])))
+                        if s is not None}
     log(f"\n- GUIDE-seq was run for {len(guideseq_samples)} of {len(guides)} sgRNAs; "
         "for the remaining sgRNAs a site is unobserved in cell, not negative.")
 
