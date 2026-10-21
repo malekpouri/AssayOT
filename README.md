@@ -9,7 +9,7 @@ This repository asks what can actually be estimated from such data, and answers 
 measurements rather than assumptions.
 
 <p align="center">
-  <img src="paper/figures/fig9_two_estimands.png" width="620"
+  <img src="docs/figures/fig9_two_estimands.png" width="620"
        alt="Slope chart: the supervised model scores 0.711 average precision at ranking what an assay reports and 0.601 at ranking what a confirmatory assay measures, while the assay-aware model scores 0.652 and 0.725. The two lines cross.">
 </p>
 
@@ -34,7 +34,7 @@ depends entirely on how much activity you insist on seeing — and it moves 25-f
 across the plausible range.
 
 <p align="center">
-  <img src="paper/figures/fig2_floor_sensitivity.png" width="560"
+  <img src="docs/figures/fig2_floor_sensitivity.png" width="560"
        alt="Curve showing the fraction of sites called active falling from 22.5% to under 1% for cell-assay-silent sites, and from 98% to 22% for sites detected by both assays, as the activity floor rises from 0 to 1%.">
 </p>
 
@@ -46,7 +46,7 @@ Detection is strongly non-uniform across that space, which is what the observati
 branch has to represent.
 
 <p align="center">
-  <img src="paper/figures/fig3_candidate_space.png" width="520"
+  <img src="docs/figures/fig3_candidate_space.png" width="520"
        alt="Log-scale bar chart comparing enumerated candidates with in-vitro detections at each mismatch count; candidates exceed detections everywhere, and the detected fraction falls sharply with mismatch count.">
 </p>
 
@@ -80,8 +80,6 @@ branch has to represent.
 | `src/selfcheck.py` | asserts the invariants the paper's claims rest on; run it after `prep` and `scan` |
 | `src/cfd_to_json.py` | one-off conversion of the published CFD pickles to JSON, behind a restricted unpickler |
 | `results/` | metric CSVs, per-sgRNA rankings, the pre-registered `ANALYSIS_PLAN.md` with its amendments, and the generated `PROVENANCE.md`. Per-row predictions are included except `pred_guide.parquet` (234 MB, past GitHub's file limit); regenerate it with `python -m src.run guide`, which is deterministic given the frozen seed |
-| `paper/` | journal-neutral LaTeX manuscript |
-| `paper-csbj/` | the same manuscript formatted for *Computational and Structural Biotechnology Journal* |
 
 ## The two tables
 
@@ -166,6 +164,13 @@ uv pip install --python .venv/bin/python -r requirements.txt
 
 MIT for the code (`LICENSE`). The underlying data remain under the licences of their
 original publications; see `datasets/MANIFEST.md`.
+
+## Manuscript
+
+The manuscript itself is **not distributed here**, to avoid any conflict with the
+target journal's prior-publication policy. This repository contains everything needed
+to reproduce the work — the harmonised benchmark, the candidate space, the model, the
+analysis plan and all result tables — and the paper will be linked here once published.
 
 ## How to cite
 

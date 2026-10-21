@@ -33,3 +33,12 @@ datasets/
 # seed with `python -m src.run guide`, so it is excluded. The per-sgRNA metric
 # CSVs derived from it are tracked in full.
 results/pred_guide.parquet
+
+# The manuscript is deliberately NOT published here, to avoid any conflict with the
+# target journal's prior-publication policy. The sources stay in the working tree so
+# the pipeline still builds them; they are simply not tracked. Figures are copied to
+# docs/figures/ by `python -m src.figures`, and those -- being outputs of the code in
+# this repository rather than the article -- are tracked.
+paper/
+paper-csbj/
+docs/*.pdf
