@@ -123,3 +123,13 @@ uv pip install --python .venv/bin/python -r requirements.txt
 
 MIT for the code (`LICENSE`). The underlying data remain under the licences of their
 original publications; see `datasets/MANIFEST.md`.
+
+## How to cite
+
+If you use the code or the harmonised benchmark, please cite the paper (see
+`CITATION.cff`, which GitHub renders as a citation widget):
+
+> Malekpouri M., Lotfi S. *Assay-aware learning from incomplete labels for cross-study
+> CRISPR--Cas9 off-target prediction.*
+
+Repository: <https://github.com/malekpouri/AssayOT>

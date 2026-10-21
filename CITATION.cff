@@ -16,6 +16,8 @@ authors:
     given-names: Somayeh
     orcid: "https://orcid.org/0000-0002-7218-5388"
     affiliation: "Department of Computer Engineering, BA.C., Islamic Azad University, Bandar Abbas, Iran"
+repository-code: "https://github.com/malekpouri/AssayOT"
+url: "https://github.com/malekpouri/AssayOT"
 license: MIT
 keywords:
   - CRISPR-Cas9
