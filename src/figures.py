@@ -233,6 +233,57 @@ def fig_riskcoverage():
     _save(fig, "fig8_risk_coverage")
 
 
+def fig_two_estimands():
+    """The study's central claim in one picture: which model is better depends on
+    which quantity is being ranked.
+
+    A slope chart rather than grouped bars, because the comparison that matters is the
+    *change in ordering* between two protocols, and a slope shows a crossing directly
+    where bars make the reader compute it.
+    """
+    g = C.RESULTS / "metrics_guide.csv"
+    v = C.RESULTS / "metrics_validated.csv"
+    if not (g.exists() and v.exists()):
+        return _placeholder("fig9_two_estimands", "run `src.run guide` and `validated`")
+
+    def grab(path, model):
+        d = pd.read_csv(path)
+        d = d[(d.metric == "ap") & (d.model == model)]
+        return (float(d.value.iloc[0]), float(d.lo.iloc[0]),
+                float(d.hi.iloc[0])) if len(d) else (np.nan,) * 3
+
+    series = [("supervised\n(unreported = negative)", BLUE,
+               grab(g, "L1_supervised"), grab(v, "L1_supervised")),
+              ("assay-aware\n(models the observation)", ORANGE,
+               grab(g, "L3_assay"), grab(v, "L3_assay"))]
+
+    fig, ax = plt.subplots(figsize=(5.0, 3.4))
+    x = [0, 1]
+    for label, colour, left, right in series:
+        ax.plot(x, [left[0], right[0]], "-o", color=colour, lw=2.0, ms=8,
+                markeredgecolor="white", markeredgewidth=1.2, zorder=3)
+        for xi, (val, lo, hi) in zip(x, (left, right)):
+            ax.plot([xi, xi], [lo, hi], color=colour, lw=1.4, alpha=0.55,
+                    solid_capstyle="round", zorder=2)
+        ax.annotate(f"{left[0]:.3f}", (0, left[0]), textcoords="offset points",
+                    xytext=(-10, 0), ha="right", va="center", color=INK, fontsize=9)
+        ax.annotate(f"{right[0]:.3f}", (1, right[0]), textcoords="offset points",
+                    xytext=(10, 0), ha="left", va="center", color=INK, fontsize=9)
+        # direct label on the side where the two series are furthest apart
+        ax.annotate(label, (1, right[0]), textcoords="offset points",
+                    xytext=(46, 0), ha="left", va="center", color=INK2, fontsize=8.5)
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(["ranking what an assay\n$\\bf{reports}$",
+                        "ranking what a confirmatory\nassay $\\bf{measures}$"])
+    ax.set_ylabel("average precision")
+    ax.set_xlim(-0.42, 1.95)
+    ax.set_title("The better model depends on which quantity is wanted", loc="left",
+                 color=INK)
+    ax.grid(axis="x", visible=False)
+    _save(fig, "fig9_two_estimands")
+
+
 def fig_candidate_space():
     if not C.CANDIDATES.exists():
         return
@@ -270,6 +321,7 @@ def fig_candidate_space():
 
 def main():
     print("figures ->", FIG)
+    fig_two_estimands()
     fig_candidate_space()
     fig_floor_sensitivity()
     for tag in ("guide", "validated", "study", "tech"):

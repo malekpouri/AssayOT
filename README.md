@@ -1,23 +1,66 @@
-# Assay-aware learning from incomplete labels for cross-study CRISPR–Cas9 off-target prediction
+# AssayOT — assay-aware learning from incomplete labels for CRISPR–Cas9 off-targets
 
-Code, harmonised benchmark, results and manuscript for the study of what can be
-predicted reliably when CRISPR–Cas9 off-target labels are a function of the detection
-technology, the biological context and the choice of which sites were ever tested.
-Research plan: [`roadmap.md`](roadmap.md).
+**"No cut reported" is not "no cut occurred."** CRISPR–Cas9 off-target predictors learn
+from labels produced by detection assays that disagree with each other, and most
+pipelines resolve that disagreement by declaring every unreported candidate a biological
+negative — turning a statement about *what was observed* into one about *what happened*.
 
-The premise is that **"no cut reported" is not "no cut occurred"**, and that the gap
-between an *in vitro* and an *in cell* assay is not only a matter of sensitivity — the
-biology changes too. The two sources of disagreement are kept separate throughout.
+This repository asks what can actually be estimated from such data, and answers it with
+measurements rather than assumptions.
 
-## What this is not
+<p align="center">
+  <img src="paper/figures/fig9_two_estimands.png" width="620"
+       alt="Slope chart: the supervised model scores 0.711 average precision at ranking what an assay reports and 0.601 at ranking what a confirmatory assay measures, while the assay-aware model scores 0.652 and 0.725. The two lines cross.">
+</p>
 
-It is not a larger transformer for off-target scoring. The question is:
+The central result is that **there is no single best model, because there is no single
+quantity.** Ranking what an assay *reports* and ranking what a nuclease *does* are
+different targets, and the ordering of methods reverses between them. The published
+record contains far more of the first than the second.
 
-> When off-target labels depend on the assay, the cellular context and a
-> non-random choice of which sites were validated, *which quantity is actually
-> estimable from the published data?*
+## What the data actually support
 
-Part of the answer here is negative, and reported as such.
+| Question | Answer |
+|---|---|
+| Is "unreported" a safe negative? | **At the assay's own 0.1% sensitivity, yes** — only 0.9% of sites a cellular assay missed show real editing. Below that floor, up to 22.5% do. |
+| Does modelling the observation process help? | **Only for the right target.** It costs 0.058 average precision at predicting reports and gains 0.124 at predicting measured activity. |
+| Can activity and detection be separated? | **Only under a declared constraint.** Configurations fitting the reports equally well disagree more and more about activity as the detection branch is freed (36% → 44% → 59% spread). |
+| Does it beat what practitioners already do? | **Not demonstrably.** Ranking by in-vitro read depth reaches 0.660 against the model's 0.725, and the gap is not significant on six sgRNAs (*p* = 0.079). |
+
+### The number everyone quotes is a choice, not a finding
+
+How much cellular activity hides among sites a cellular assay failed to report? It
+depends entirely on how much activity you insist on seeing — and it moves 25-fold
+across the plausible range.
+
+<p align="center">
+  <img src="paper/figures/fig2_floor_sensitivity.png" width="560"
+       alt="Curve showing the fraction of sites called active falling from 22.5% to under 1% for cell-assay-silent sites, and from 98% to 22% for sites detected by both assays, as the activity floor rises from 0 to 1%.">
+</p>
+
+### Performance is claimed over a stated space, never over "the genome"
+
+Every hg38 site within 6 substitutions of each sgRNA is enumerated exactly on the GPU —
+6,765,936 candidates in 134 s, containing **100.0000%** of the released detections.
+Detection is strongly non-uniform across that space, which is what the observation
+branch has to represent.
+
+<p align="center">
+  <img src="paper/figures/fig3_candidate_space.png" width="520"
+       alt="Log-scale bar chart comparing enumerated candidates with in-vitro detections at each mismatch count; candidates exceed detections everywhere, and the detected fraction falls sharply with mismatch count.">
+</p>
+
+## Three traps in the public data, found while building this
+
+- **A validation flag that is not a label.** A widely used database records `FALSE` both
+  for a rejected off-target and for a failed PCR. Only 592 of 4,340 such rows carry a
+  measurement that tells them apart.
+- **Bulges hide in three different shapes** — a gap character, a 24-nt window with *no*
+  gap character, and an empty sequence cell. Catching only the first leaves RNA-bulge
+  rows masquerading as substitution sites with 7+ spurious mismatches.
+- **One sgRNA, 14,833 identical loci.** A single off-target sequence recurs across a
+  repeat family, so pooling by coordinate lets one guide supply tens of thousands of
+  apparently independent rows. Splits are made on sequence, never on locus.
 
 ## Layout
 
