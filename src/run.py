@@ -52,7 +52,7 @@ def _frame():
 #: One fit is roughly 8 epochs at ~19 s. Ablations are run on a single fold, because
 #: their purpose is to show which component carries the effect, not to estimate that
 #: component's effect size to three decimals.
-EPOCHS = 8
+EPOCHS = 6
 RATIO = 4
 ABLATION_FOLDS = (0,)
 MAX_HELDOUT_UNITS = 5
