@@ -59,10 +59,19 @@ def main() -> None:
     for tag in ("guide", "validated", "study", "tech"):
         show_metrics(tag)
 
-    print("\n### paired comparisons on the unseen-sgRNA protocol")
-    for a, b in (("L3_assay", "L1_supervised"), ("L3_assay", "L2_nnpu"),
-                 ("L1_supervised", "L2_nnpu")):
-        paired("guide", a, b)
+    print("\n### paired comparisons (positive delta favours the first model)")
+    pairs_to_test = (("L3_assay", "L1_supervised"), ("L3_assay", "L2_nnpu"),
+                     ("L1_supervised", "L2_nnpu"), ("L3_assay", "score_cfd"),
+                     ("L1_supervised", "score_cfd"))
+    for tag in ("guide", "validated", "study", "tech"):
+        done = False
+        for a, b in pairs_to_test:
+            if (C.RESULTS / f"perguide_{tag}_{a}.csv").exists() and \
+               (C.RESULTS / f"perguide_{tag}_{b}.csv").exists():
+                if not done:
+                    print(f"  -- {tag}")
+                    done = True
+                paired(tag, a, b)
 
     for name, title in (("identifiability", "IDENTIFIABILITY"),
                         ("metrics_semisynth", "SEMI-SYNTHETIC MASKING"),

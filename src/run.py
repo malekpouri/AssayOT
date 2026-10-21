@@ -196,6 +196,7 @@ def protocol_validated(epochs: int = EPOCHS) -> None:
     rows = []
     for level, sub in allp.groupby("level"):
         pg = M.per_guide_ranking(sub, "p_activity", "y", guide="held_guide")
+        pg.to_csv(C.RESULTS / f"perguide_validated_{level}.csv", index=False)
         s = M.macro_summary(pg)
         s["model"] = level
         rows.append(s)
@@ -203,6 +204,7 @@ def protocol_validated(epochs: int = EPOCHS) -> None:
     for name in ["score_mismatch_count", "score_position_weighted", "score_cfd",
                  "score_changeseq_reads"]:
         pg = M.per_guide_ranking(base, name, "y", guide="held_guide")
+        pg.to_csv(C.RESULTS / f"perguide_validated_{name}.csv", index=False)
         s = M.macro_summary(pg)
         s["model"] = name.replace("score_", "baseline_")
         rows.append(s)
@@ -316,12 +318,14 @@ def protocol_study(epochs: int = EPOCHS, by: str = "study_id") -> None:
     rows = []
     for level, sub in allp.groupby("level"):
         pg = M.per_guide_ranking(sub, "p_activity", "y", guide="held_unit")
+        pg.to_csv(C.RESULTS / f"perguide_{tag}_{level}.csv", index=False)
         s = M.macro_summary(pg)
         s["model"] = level
         rows.append(s)
     base = allp[allp.level == allp.level.iloc[0]]
     for name in ["score_mismatch_count", "score_cfd"]:
         pg = M.per_guide_ranking(base, name, "y", guide="held_unit")
+        pg.to_csv(C.RESULTS / f"perguide_{tag}_{name}.csv", index=False)
         s = M.macro_summary(pg)
         s["model"] = name.replace("score_", "baseline_")
         rows.append(s)
