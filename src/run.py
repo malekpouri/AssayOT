@@ -429,7 +429,7 @@ def protocol_identify(epochs: int = EPOCHS, n_seeds: int = 3) -> None:
         "constrained + anchor": "L3_assay",
         "constrained, no anchor": "A_no_validation",
         "free propensity + anchor": "A_free_prop",
-        "constant propensity": "A_no_obs_branch",
+        "constant propensity": "I_constant_prop",
     }
     rec = []
     for label, level in configs.items():

@@ -385,6 +385,10 @@ LEVELS = {
     "A_no_validation": dict(mode="constrained", use_val=False, fp=True,  loss="obs"),
     "A_free_prop":     dict(mode="free",       use_val=True,  fp=True,  loss="obs"),
     "A_no_fp":         dict(mode="constrained", use_val=True,  fp=False, loss="obs"),
+    # Identifiability sweep only: varies the propensity capacity alone, holding the
+    # anchor and the false-positive term fixed, so the contrast with L3_assay and
+    # A_free_prop is single-factor.
+    "I_constant_prop": dict(mode="constant",    use_val=True,  fp=True,  loss="obs"),
 }
 
 

@@ -26,6 +26,7 @@ PRETTY = {
     "A_no_validation": "-- without the confirmatory anchor",
     "A_free_prop": "-- with an unconstrained propensity",
     "A_no_fp": "-- without the false-positive term",
+    "I_constant_prop": "-- with a constant propensity",
     "baseline_mismatch_count": "mismatch count",
     "baseline_position_weighted": "position-weighted mismatches",
     "baseline_cfd": "CFD",
