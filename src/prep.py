@@ -702,8 +702,13 @@ def main() -> None:
     log(f"\n## Written\n\n- `{C.PAIRS.name}`: {len(all_pairs)} pairs")
     log(f"- `{C.OBS.name}`: {len(all_obs)} observations")
     log(f"- `{C.VALID.name}`: {len(validation)} validation rows")
-    C.PROVENANCE_LOG.write_text("\n".join(LOG) + "\n")
+    text = "\n".join(LOG) + "\n"
+    C.PROVENANCE_LOG.write_text(text)
+    # Also keep a copy inside the repository: the data folder is not redistributed,
+    # so without this the log is invisible to anyone reading the code alone.
+    (C.RESULTS / "PROVENANCE.md").write_text(text)
     print(f"\nprovenance log -> {C.PROVENANCE_LOG}")
+    print(f"                -> {C.RESULTS / 'PROVENANCE.md'}")
 
 
 if __name__ == "__main__":
