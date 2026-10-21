@@ -26,3 +26,10 @@ datasets/
 # Model checkpoints are reproducible from the frozen seed
 *.pt
 *.ckpt
+
+# Per-row predictions. The small ones are tracked because they are what the
+# confirmatory and transfer claims are computed from. The unseen-sgRNA file is
+# 234 MB -- past GitHub's 100 MB hard limit -- and is regenerable from the frozen
+# seed with `python -m src.run guide`, so it is excluded. The per-sgRNA metric
+# CSVs derived from it are tracked in full.
+results/pred_guide.parquet
