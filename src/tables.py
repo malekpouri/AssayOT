@@ -196,6 +196,33 @@ def table_ablation() -> None:
     _write("table_ablation.tex", "\n".join(body))
 
 
+def table_prior() -> None:
+    p = C.RESULTS / "metrics_prior.csv"
+    if not p.exists():
+        return
+    d = pd.read_csv(p)
+    d = d[d.metric.isin(["ap", "auroc"])]
+    if not len(d):
+        return
+    body = [
+        r"\begin{table}[htbp]\centering\small",
+        r"\caption{Sensitivity of the PU baseline to the assumed class prior, on one "
+        r"unseen-sgRNA fold. The prior is not identifiable from positive-unlabelled "
+        r"data without further assumptions, so a PU result quoted at a single value of "
+        r"it is quoting a choice.}",
+        r"\label{tab:prior}",
+        r"\begin{tabular}{@{}lrr@{}}\toprule",
+        r"Assumed class prior $\pi$ & Average precision & AUROC \\\midrule",
+    ]
+    for pi, g in d.groupby("prior"):
+        gi = g.set_index("metric")
+        ap = _ci(gi.loc["ap"]) if "ap" in gi.index else "--"
+        au = _ci(gi.loc["auroc"]) if "auroc" in gi.index else "--"
+        body.append(f"{pi:g} & {ap} & {au} \\\\")
+    body.append(r"\bottomrule\end{tabular}\end{table}")
+    _write("table_prior.tex", "\n".join(body))
+
+
 def table_identify() -> None:
     p = C.RESULTS / "identifiability.csv"
     if not p.exists():
@@ -268,6 +295,7 @@ def main() -> None:
         "Unseen-study protocol on the external labelled rows."))
     table_metrics("tech", metrics=("ap", "auroc"), caption=(
         "Unseen-technology protocol on the external labelled rows."))
+    table_prior()
     table_ablation()
     table_identify()
     table_semisynth()
