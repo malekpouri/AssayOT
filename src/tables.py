@@ -50,6 +50,14 @@ def pretty(m: str) -> str:
 
 
 def _write(name: str, body: str) -> None:
+    # The journal-neutral class and elsarticle have different text widths, so a table
+    # that fits one can overflow the other. Wrapping the tabular in adjustbox shrinks
+    # it only when it would not otherwise fit, which keeps both builds clean without
+    # hand-tuning a font size per class.
+    body = body.replace(r"\begin{tabular}",
+                        r"\begin{adjustbox}{max width=\linewidth}" "\n" r"\begin{tabular}")
+    body = body.replace(r"\end{tabular}",
+                        r"\end{tabular}" "\n" r"\end{adjustbox}")
     (TAB / name).write_text(body)
     print(f"  {name}")
 
