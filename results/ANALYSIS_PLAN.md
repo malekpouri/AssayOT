@@ -135,3 +135,12 @@ CIRCLE-seq (3 studies) appear in more than one study, so for the remaining units
 insufficient technology overlap as a reason to drop the full-separation claim; that
 condition is met and the claim is dropped. Established by inspecting the label
 structure before the transfer protocols were run.
+
+**A6.** External rows flagged `in_pilot` are excluded from multi-study training and
+from the external labelled test set. CRISPRoffT re-publishes the pilot study in full
+under its own PMID, so 199,971 of the 226,118 external reported-positive rows (88.4%)
+are duplicates of the pilot. Left in, the pilot would have entered training twice and an
+"external" test could have scored rows the model had already trained on under a
+different study id. After the filter, 26,147 external reported-positive rows remain
+across 44 studies, and the external labelled set is 1,208 rows across 32 studies.
+Found while verifying a figure caption, before the transfer protocols were run.

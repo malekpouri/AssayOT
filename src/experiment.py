@@ -194,6 +194,15 @@ def build_frame_multistudy(exclude_studies: set[str] = frozenset(),
     ext = obs[(obs.study_id != "Lazzarotto2020")
               & obs.status.eq(C.STATUS_POSITIVE)].copy()
     ext = ext[~ext.study_id.isin(exclude_studies)]
+    # The database re-publishes the pilot study in full under its own PMID. Left in,
+    # the pilot would enter training twice -- once natively with its whole candidate
+    # space, and again as a nominally separate study -- which would both inflate the
+    # study count and duplicate the data the other protocols train on. 199,971 of the
+    # 226,118 external reported-positive rows are such duplicates.
+    before = len(ext)
+    ext = ext[~ext.in_pilot.fillna(False).astype(bool)]
+    print(f"  dropping {before - len(ext):,} external rows that duplicate the pilot; "
+          f"{len(ext):,} remain across {ext.study_id.nunique()} studies")
     ext = drop_editor_assays(ext)
     ext["guide_sequence"] = ext.pair_id.map(gmap)
     ext = ext.dropna(subset=["guide_sequence"])

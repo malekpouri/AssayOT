@@ -230,6 +230,9 @@ def external_labelled(obs: pd.DataFrame, pairs: pd.DataFrame) -> pd.DataFrame:
     failed PCR.
     """
     e = obs[(obs.study_id != "Lazzarotto2020")].copy()
+    # exclude the database's re-publication of the pilot, so an "external" test is
+    # not scored on rows the model trained on under a different study id
+    e = e[~e.in_pilot.fillna(False).astype(bool)]
     e = X.drop_editor_assays(e)
     lab = e[e.evidence_tier.eq("confirmed")
             | (e.evidence_tier.eq("rejected_or_failed") & e.indel_treatment_pct.notna())]
