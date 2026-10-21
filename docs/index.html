@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AssayOT</title>
+<meta name="description" content="Assay-aware learning from incomplete labels for cross-study CRISPR–Cas9 off-target prediction. What can actually be estimated when off-target labels depend on the assay that produced them.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧬</text></svg>">
+<style>
+  :root {
+    color-scheme: light;
+    --surface:      #fcfcfb;
+    --surface-2:    #f4f4f1;
+    --rule:         #e4e3de;
+    --ink:          #0b0b0b;
+    --ink-2:        #52514e;
+    --ink-3:        #8a8982;
+    --blue:         #2a78d6;
+    --orange:       #c2521f;
+    --aqua:         #117a55;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto,
+            "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --surface:   #161614;  --surface-2: #201f1d;  --rule: #35332f;
+      --ink:       #f2f1ed;  --ink-2:     #c5c3bb;  --ink-3: #8f8d85;
+      --blue:      #6aa8f0;  --orange:    #f08a5a;  --aqua:  #45c89a;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface:   #161614;  --surface-2: #201f1d;  --rule: #35332f;
+    --ink:       #f2f1ed;  --ink-2:     #c5c3bb;  --ink-3: #8f8d85;
+    --blue:      #6aa8f0;  --orange:    #f08a5a;  --aqua:  #45c89a;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--surface); color: var(--ink);
+    font-family: var(--sans); font-size: 17px; line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 50rem; margin: 0 auto; padding: 0 16px; }
+  a { color: var(--blue); text-underline-offset: 2px; }
+  a:hover { text-decoration-thickness: 2px; }
+  h1, h2, h3 { line-height: 1.25; letter-spacing: -0.015em; }
+  h1 { font-size: clamp(2rem, 6vw, 2.9rem); margin: 0 0 .4em; }
+  h2 { font-size: clamp(1.3rem, 3.6vw, 1.6rem); margin: 3rem 0 .6em;
+       padding-top: 1.6rem; border-top: 1px solid var(--rule); }
+  h3 { font-size: 1.08rem; margin: 2rem 0 .4em; color: var(--ink); }
+  p  { margin: 0 0 1.1em; }
+  .lede { font-size: clamp(1.05rem, 2.6vw, 1.22rem); color: var(--ink-2); }
+  .kicker { font-family: var(--mono); font-size: .76rem; letter-spacing: .09em;
+            text-transform: uppercase; color: var(--ink-3); margin: 0 0 1.2rem; }
+  strong { font-weight: 650; }
+  code { font-family: var(--mono); font-size: .88em; background: var(--surface-2);
+         padding: .12em .36em; border-radius: 4px; }
+
+  header { padding: clamp(3rem, 9vw, 5.5rem) 0 1rem; }
+  .claim { font-size: clamp(1.2rem, 3.4vw, 1.5rem); font-weight: 600;
+           line-height: 1.4; margin: 0 0 1.1em; }
+
+  figure { margin: 2rem 0; }
+  figure img { width: 100%; height: auto; display: block; border-radius: 6px; }
+  figcaption { font-size: .88rem; color: var(--ink-2); margin-top: .7rem;
+               line-height: 1.55; }
+
+  table { width: 100%; border-collapse: collapse; margin: 1.4rem 0; font-size: .95rem; }
+  th, td { text-align: left; padding: .6rem .7rem; border-bottom: 1px solid var(--rule);
+           vertical-align: top; }
+  th { font-size: .78rem; letter-spacing: .05em; text-transform: uppercase;
+       color: var(--ink-3); font-weight: 600; }
+  td:first-child { color: var(--ink-2); }
+  .num { font-family: var(--mono); font-variant-numeric: tabular-nums;
+         white-space: nowrap; }
+
+  .cards { display: grid; gap: .9rem; grid-template-columns: 1fr; margin: 1.4rem 0; }
+  @media (min-width: 640px) { .cards { grid-template-columns: 1fr 1fr 1fr; } }
+  .card { background: var(--surface-2); border: 1px solid var(--rule);
+          border-radius: 8px; padding: 1rem 1.1rem; }
+  .card .n { font-family: var(--mono); font-size: 1.5rem; font-weight: 600;
+             display: block; margin-bottom: .2rem; }
+  .card .l { font-size: .85rem; color: var(--ink-2); line-height: 1.45; }
+  .c-blue .n { color: var(--blue); }
+  .c-orange .n { color: var(--orange); }
+  .c-aqua .n { color: var(--aqua); }
+
+  .links { display: flex; flex-wrap: wrap; gap: .7rem; margin: 1.6rem 0 0; }
+  .btn { display: inline-block; padding: .55rem 1rem; border-radius: 7px;
+         border: 1px solid var(--rule); background: var(--surface-2);
+         color: var(--ink); text-decoration: none; font-size: .93rem;
+         font-weight: 550; }
+  .btn:hover { border-color: var(--ink-3); }
+  .btn-primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+  :root[data-theme="dark"] .btn-primary,
+  .btn-primary { color: #fff; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .btn-primary { color: #0b0b0b; }
+  }
+
+  ul.tight { padding-left: 1.15rem; margin: 1rem 0; }
+  ul.tight li { margin-bottom: .7rem; }
+
+  .caveat { border-left: 3px solid var(--orange); padding: .3rem 0 .3rem 1rem;
+            margin: 1.5rem 0; color: var(--ink-2); }
+  .caveat strong { color: var(--ink); }
+
+  footer { margin: 4rem 0 3rem; padding-top: 1.6rem; border-top: 1px solid var(--rule);
+           font-size: .88rem; color: var(--ink-3); }
+  footer a { color: var(--ink-2); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="kicker">CRISPR–Cas9 · off-target prediction · open benchmark</p>
+  <h1>AssayOT</h1>
+  <p class="lede">Assay-aware learning from incomplete labels for cross-study
+  CRISPR–Cas9 off-target prediction.</p>
+  <p class="claim">“No cut reported” is not “no cut occurred.”</p>
+  <p>Off-target predictors learn from labels produced by detection assays that disagree
+  with each other. Most pipelines resolve that disagreement by declaring every
+  unreported candidate a biological negative — turning a statement about <em>what was
+  observed</em> into one about <em>what happened</em>. This project asks what can
+  actually be estimated from such data, and answers with measurements rather than
+  assumptions.</p>
+
+  <div class="links">
+    <a class="btn btn-primary" href="AssayOT-paper.pdf">Read the paper (PDF)</a>
+    <a class="btn" href="AssayOT-paper-csbj.pdf">CSBJ-formatted PDF</a>
+    <a class="btn" href="https://github.com/malekpouri/AssayOT">Code &amp; benchmark</a>
+  </div>
+</header>
+
+<h2>There is no single best model, because there is no single quantity</h2>
+
+<p>Ranking what an assay <strong>reports</strong> and ranking what a nuclease
+<strong>does</strong> are different targets. The ordering of methods reverses between
+them — and the published record contains far more of the first than the second.</p>
+
+<figure>
+  <img src="figures/fig9_two_estimands.png"
+       alt="Slope chart. The supervised model scores 0.711 average precision at ranking what an assay reports and 0.601 at ranking what a confirmatory assay measures. The assay-aware model scores 0.652 and 0.725. The two lines cross between the panels.">
+  <figcaption>Macro average precision with 95% bootstrap intervals over held-out
+  guide RNAs, for the same two models scored on two different targets. Each model wins
+  on the target it is aimed at: the supervised model is trained on exactly the label the
+  left axis scores, while the assay-aware model estimates the latent cellular event it
+  deliberately separates from the report.</figcaption>
+</figure>
+
+<div class="cards">
+  <div class="card c-blue"><span class="n">+0.058</span>
+    <span class="l">supervised model’s edge at predicting what an assay reports</span></div>
+  <div class="card c-orange"><span class="n">+0.124</span>
+    <span class="l">assay-aware model’s edge at predicting measured activity</span></div>
+  <div class="card c-aqua"><span class="n">100.0000%</span>
+    <span class="l">of released detections inside the enumerated candidate space</span></div>
+</div>
+
+<h2>What the data actually support</h2>
+
+<table>
+  <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+  <tbody>
+    <tr><td>Is “unreported” a safe negative?</td>
+        <td><strong>At the assay’s own 0.1% sensitivity, yes</strong> — only 0.9% of
+        sites a cellular assay missed show real editing. Below that floor, up to 22.5% do.</td></tr>
+    <tr><td>Does modelling the observation process help?</td>
+        <td><strong>Only for the right target.</strong> It costs 0.058 average precision
+        at predicting reports and gains 0.124 at predicting measured activity.</td></tr>
+    <tr><td>Can activity and detection be separated?</td>
+        <td><strong>Only under a declared constraint.</strong> Configurations fitting the
+        reports equally well disagree more and more about activity as the detection
+        branch is freed — 36% → 44% → 59% spread across initialisations.</td></tr>
+    <tr><td>Does it beat what practitioners already do?</td>
+        <td><strong>Not demonstrably.</strong> Ranking by in-vitro read depth reaches
+        0.660 against the model’s 0.725, and the gap is not significant on six guide
+        RNAs (<span class="num">p = 0.079</span>).</td></tr>
+  </tbody>
+</table>
+
+<h2>The number everyone quotes is a choice, not a finding</h2>
+
+<p>How much cellular activity hides among sites a cellular assay failed to report? It
+depends entirely on how much activity you insist on seeing — and it moves
+<strong>25-fold</strong> across the plausible range. Quoting either end without the
+other reports a choice as a result.</p>
+
+<figure>
+  <img src="figures/fig2_floor_sensitivity.png"
+       alt="Curve showing the fraction of sites called active falling from 22.5 percent to under 1 percent for sites the cellular assay reported nothing for, and from 98 percent to 22 percent for sites detected by both assays, as the activity floor rises from zero to one percent.">
+  <figcaption>Fraction of confirmatory-assay sites called active against the activity
+  floor, from replicate-level counts with Benjamini–Hochberg correction throughout. The
+  dashed line marks the sensitivity the confirmatory assay was published with.</figcaption>
+</figure>
+
+<h2>Performance is claimed over a stated space, never over “the genome”</h2>
+
+<p>Every hg38 site within six substitutions of each guide RNA is enumerated exactly on
+the GPU — <span class="num">6,765,936</span> candidates in 134 seconds, containing
+<strong>100.0000%</strong> of the released detections. Detection is strongly non-uniform
+across that space, which is precisely what the observation branch has to represent.</p>
+
+<figure>
+  <img src="figures/fig3_candidate_space.png"
+       alt="Log-scale bar chart comparing enumerated candidates with in-vitro detections at each mismatch count. Candidates exceed detections at every count, and the detected fraction falls sharply as mismatches increase.">
+  <figcaption>Enumerated candidate space against released detections for the 110 pilot
+  guide RNAs. Nearly every on-target and near-perfect site is detected; only 3.9% of
+  six-mismatch candidates are.</figcaption>
+</figure>
+
+<h2>Three traps in the public data</h2>
+
+<p>Found while building the benchmark, and documented so others do not repeat them.</p>
+
+<ul class="tight">
+  <li><strong>A validation flag that is not a label.</strong> A widely used database
+  records <code>FALSE</code> both for a rejected off-target and for a failed PCR. Only
+  592 of 4,340 such rows carry a measurement that tells them apart.</li>
+  <li><strong>Bulges hide in three different shapes</strong> — a gap character, a 24-nt
+  window with <em>no</em> gap character, and an empty sequence cell. Catching only the
+  first leaves RNA-bulge rows masquerading as substitution sites with seven or more
+  spurious mismatches.</li>
+  <li><strong>One guide RNA, 14,833 identical loci.</strong> A single off-target sequence
+  recurs across a repeat family, so pooling by coordinate lets one guide supply tens of
+  thousands of apparently independent rows. Splits are made on sequence, never on
+  locus.</li>
+</ul>
+
+<div class="caveat">
+  <strong>What this is not.</strong> It is not a larger transformer for off-target
+  scoring, and it does not claim to estimate a universal probability of cleavage. Part
+  of the conclusion is that such a claim is not supported by the public data — the
+  defensible output is a ranking, or a bound, together with a statement of which assay
+  at which limit of detection it refers to.
+</div>
+
+<h2>Reproduce it</h2>
+
+<p>Everything is public: the harmonised benchmark with its generated provenance log, the
+enumerated candidate space, the frozen split seed, the pre-registered analysis plan with
+its amendments, and per-guide predictions. Fourteen invariants that the paper’s claims
+rest on are asserted in code.</p>
+
+<div class="links">
+  <a class="btn" href="https://github.com/malekpouri/AssayOT">Repository</a>
+  <a class="btn" href="https://github.com/malekpouri/AssayOT/blob/main/results/ANALYSIS_PLAN.md">Analysis plan</a>
+  <a class="btn" href="https://github.com/malekpouri/AssayOT/blob/main/results/PROVENANCE.md">Provenance log</a>
+</div>
+
+<footer>
+  <p>Mohammad Malekpouri and Somayeh Lotfi · Department of Computer Engineering,
+  BA.C., Islamic Azad University, Bandar Abbas, Iran.</p>
+  <p>Code under the MIT licence. Underlying data remain under the licences of their
+  original publications — CHANGE-seq (Lazzarotto et al. 2020), CRISPRoffT (Wang et al.
+  2025), CFD (Doench et al. 2016), UCSC hg38.</p>
+</footer>
+
+</div>
+</body>
+</html>
