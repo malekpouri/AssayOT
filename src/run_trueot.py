@@ -31,7 +31,7 @@ from .run import EPOCHS, RATIO, _frame
 
 #: Everything the paper compares, on one external benchmark.
 LEVELS = ["L1_supervised", "L2_nnpu", "L3_assay", "C1_supervised_anchor",
-          "A_no_validation"]
+          "C2_anchor_unweighted", "A_no_validation"]
 
 
 def main(epochs: int = EPOCHS) -> None:

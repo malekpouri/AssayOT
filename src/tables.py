@@ -28,6 +28,7 @@ PRETTY = {
     "A_no_fp": "-- without the false-positive term",
     "I_constant_prop": "-- with a constant propensity",
     "C1_supervised_anchor": "C1 supervised $+$ confirmatory anchor (control)",
+    "C2_anchor_unweighted": "-- with an unweighted confirmatory anchor",
     "R1_cnn_bilstm": "R1 CNN\\,$+$\\,BiLSTM (CRISPR-Net family)",
     "R2_gbt_elevation": "R2 boosted substitution indicators (Elevation family)",
     "baseline_mismatch_count": "mismatch count",

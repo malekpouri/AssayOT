@@ -177,7 +177,8 @@ def protocol_validated(epochs: int = EPOCHS) -> None:
             continue
         te = B.score_all(te)
         te["score_changeseq_reads"] = B.changeseq_reads_score(te, obs)
-        for level in PRIMARY_LEVELS + ["A_no_validation", "C1_supervised_anchor"]:
+        for level in PRIMARY_LEVELS + ["A_no_validation", "C1_supervised_anchor",
+                                      "C2_anchor_unweighted"]:
             model = X.train(fr, tr_g, level=level, epochs=epochs, ratio=RATIO,
                             seed=C.SEED, verbose=False)
             p = X.predict(model, fr, te, context=C.CTX_INCELL, assay="TagSeq")

@@ -396,6 +396,13 @@ LEVELS = {
     # assay-aware formulation helps" from "training on the target assay's labels
     # helps", which the L3 vs L1 contrast alone cannot do.
     "C1_supervised_anchor": dict(mode="constant", use_val=True, fp=False, loss="bce"),
+    # Is the inverse-selection weighting in the anchor doing any work? Now that the
+    # anchor is the finding rather than the observation model, this is the ablation
+    # that matters: identical to C1 except every confirmatory row carries weight 1,
+    # so the sites chosen for confirmation are treated as a random sample when they
+    # were not.
+    "C2_anchor_unweighted": dict(mode="constant", use_val=True, fp=False, loss="bce",
+                                 val_weights=False),
 }
 
 
@@ -428,7 +435,11 @@ def train(frame: Frame, train_guides, level: str = "L3_assay",
         val_enc = encode_rows(val)
         val_enc = {k: v.to(DEV) for k, v in val_enc.items()}
         val_y = torch.tensor(val.y.to_numpy(np.float32), device=DEV)
-        val_w = torch.tensor(val.weight.to_numpy(np.float32), device=DEV)
+        if cfg.get("val_weights", True):
+            val_w = torch.tensor(val.weight.to_numpy(np.float32), device=DEV)
+        else:
+            # treat the confirmatory subpopulation as if it had been sampled at random
+            val_w = torch.ones(len(val), dtype=torch.float32, device=DEV)
         val_ctx = torch.tensor([CTX[c] for c in val.context], device=DEV)
         val_as = torch.tensor([frame.assay_index[a] for a in val.assay_id], device=DEV)
         val_st = torch.tensor([frame.study_index[s] for s in val.study_id], device=DEV)
