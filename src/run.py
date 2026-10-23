@@ -453,7 +453,18 @@ def protocol_identify(epochs: int = EPOCHS, n_seeds: int = 8) -> None:
         "free propensity + anchor": "A_free_prop",
         "constant propensity": "I_constant_prop",
     }
+    # Each configuration costs ~25 min, so results are written as they are produced
+    # and an interrupted run resumes instead of starting over. This protocol lost two
+    # hours of work to an out-of-memory kill on its final configuration, which is a
+    # fault in the protocol rather than bad luck.
+    partial = C.RESULTS / "identifiability_partial.csv"
     rec = []
+    if partial.exists():
+        rec = pd.read_csv(partial).to_dict("records")
+        done = {r["config"] for r in rec}
+        if done:
+            print(f"  resuming; already have {sorted(done)}", flush=True)
+        configs = {k: v for k, v in configs.items() if k not in done}
     for label, level in configs.items():
         P, Q = [], []
         for seed in range(n_seeds):
@@ -484,9 +495,12 @@ def protocol_identify(epochs: int = EPOCHS, n_seeds: int = 8) -> None:
             activity_mean=float(P.mean()),
         ))
         print(f"  {label}: loglik(report)={ll:.5f} "
-              f"sd(activity)={P.std(0).mean():.4f} sd(report)={Q.std(0).mean():.4f}")
+              f"sd(activity)={P.std(0).mean():.4f} sd(report)={Q.std(0).mean():.4f}",
+              flush=True)
+        pd.DataFrame(rec).to_csv(partial, index=False)
     out = pd.DataFrame(rec)
     out.to_csv(C.RESULTS / "identifiability.csv", index=False)
+    partial.unlink(missing_ok=True)
     print("\n== identifiability ==")
     print(out.round(5).to_string(index=False))
 
