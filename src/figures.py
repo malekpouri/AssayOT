@@ -284,12 +284,17 @@ def fig_two_estimands():
                     xytext=(46, 0), ha="left", va="center", color=INK2, fontsize=8.5)
 
     ax.set_xticks(x)
-    ax.set_xticklabels(["ranking what an assay\n$\\bf{reports}$",
-                        "ranking what a confirmatory\nassay $\\bf{measures}$"])
+    ax.set_xticklabels(["ranking what an assay\n$\\bf{reports}$\n(57 sgRNAs)",
+                        "ranking what a confirmatory\nassay $\\bf{measures}$\n(6 sgRNAs)"])
     ax.set_ylabel("average precision")
     ax.set_xlim(-0.42, 1.95)
-    ax.set_title("The better model depends on which quantity is wanted", loc="left",
+    # The qualification belongs on the figure, not only in the caption: this plot
+    # travels on its own into the README and the project site, and the crossing does
+    # not reproduce on the external benchmark.
+    ax.set_title("In this corpus, the better model depends on the quantity", loc="left",
                  color=INK)
+    ax.text(0, 1.0, "crossing not reproduced on 25 external sgRNAs",
+            transform=ax.transAxes, va="bottom", ha="left", fontsize=7.5, color=MUTED)
     ax.grid(axis="x", visible=False)
     _save(fig, "fig9_two_estimands")
 

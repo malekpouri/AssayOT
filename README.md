@@ -15,8 +15,10 @@ measurements rather than assumptions.
 
 The central result is that **there is no single best model, because there is no single
 quantity.** Ranking what an assay *reports* and ranking what a nuclease *does* are
-different targets, and the ordering of methods reverses between them. The published
-record contains far more of the first than the second.
+different targets. In this corpus the ordering of methods reverses between them — the
+figure above — though on 25 sgRNAs from nine other laboratories it does not, so the
+durable claim is the distinction between the quantities rather than the reversal that
+illustrates it. The published record contains far more of the first than the second.
 
 The second result is a negative one about the method this repository proposes. What
 flips the ordering is **supervision from an assay that measures activity**, not the
