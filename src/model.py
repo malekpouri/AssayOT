@@ -29,8 +29,11 @@ from __future__ import annotations
 
 import math
 
+import os
+
 import torch
 import torch.nn as nn
+from torch.utils.checkpoint import checkpoint
 import torch.nn.functional as F
 
 from .encode import N_PAIR_TOKEN, SITE_LEN
@@ -39,6 +42,12 @@ from .encode import N_PAIR_TOKEN, SITE_LEN
 # ---------------------------------------------------------------------------
 # encoder
 # ---------------------------------------------------------------------------
+
+#: Recompute heavy blocks in the backward pass instead of storing activations.
+#: Off by default so the default path is byte-for-byte what the paper reported;
+#: enabled with ASSAYOT_CHECKPOINT=1 when the GPU is shared.
+CHECKPOINT = os.environ.get("ASSAYOT_CHECKPOINT", "0") == "1"
+
 
 class PairEncoder(nn.Module):
     """Local CNN over joint (guide, site) position tokens, then a small transformer.
@@ -74,8 +83,19 @@ class PairEncoder(nn.Module):
         mm[:, : mismatch.shape[1]] = mismatch.to(x.dtype)
         dist = (torch.arange(L, device=tokens.device, dtype=x.dtype) / L)[None].expand(b, L)
         x = x + self.mm_proj(torch.stack([mm, dist], -1))
-        x = x + self.cnn(x.transpose(1, 2)).transpose(1, 2)
-        x = self.tf(x)
+        if CHECKPOINT and self.training:
+            # Recompute the two heaviest blocks in the backward pass instead of
+            # storing their activations. This is a memory-for-compute trade with no
+            # effect on the result: `preserve_rng_state` replays the same dropout
+            # masks, so the gradients are those of the uncheckpointed graph. It exists
+            # because this card is shared, and a protocol that cannot run when another
+            # job holds 5 GiB is a protocol that cannot be reproduced.
+            x = x + checkpoint(lambda h: self.cnn(h.transpose(1, 2)).transpose(1, 2),
+                               x, use_reentrant=False)
+            x = checkpoint(self.tf, x, use_reentrant=False)
+        else:
+            x = x + self.cnn(x.transpose(1, 2)).transpose(1, 2)
+            x = self.tf(x)
         # attention-free pooling: mean over positions plus the PAM token
         return self.norm(x.mean(1) + x[:, -1])
 
