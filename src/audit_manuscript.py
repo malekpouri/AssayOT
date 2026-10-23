@@ -107,6 +107,33 @@ if s.exists():
 
         chk(f'semisynth {m} signal', sig, float(pv.loc[m,'signal_dependent']), 1e-3)
 
+# --- external measured-activity benchmark (TrueOT) -------------------------
+tp = R / 'metrics_trueot.csv'
+if tp.exists():
+    chk('trueot C2 AP', 0.793, ap('metrics_trueot.csv', 'C2_anchor_unweighted'))
+    chk('trueot C1 AP', 0.777, ap('metrics_trueot.csv', 'C1_supervised_anchor'))
+    chk('trueot L1 AP', 0.745, ap('metrics_trueot.csv', 'L1_supervised'))
+    chk('trueot L3 AP', 0.725, ap('metrics_trueot.csv', 'L3_assay'))
+    chk('trueot R1 AP', 0.683, ap('metrics_trueot.csv', 'R1_cnn_bilstm'))
+    chk('trueot CFD AP', 0.590, ap('metrics_trueot.csv', 'baseline_cfd'))
+    s = pd.read_csv(R / 'trueot_summary.csv').iloc[0]
+    chk('trueot guides', 25, int(s.n_guides), 0)
+    chk('trueot rows', 1034, int(s.n_rows), 0)
+    chk('trueot positives', 192, int(s.n_pos), 0)
+    chk('trueot studies', 9, int(s.n_studies), 0)
+    chk('trueot base rate', 0.189, float(s.macro_base_rate), 0.001)
+    # the deviation the paper declares
+    chk('trueot train batch', 1024, int(s.train_batch), 0)
+cp = R / 'metrics_trueot_contrasts.csv'
+if cp.exists():
+    c = pd.read_csv(cp).set_index(['a', 'b'])
+    chk('trueot anchor-vs-plain delta', 0.032,
+        float(c.loc[('C1_supervised_anchor', 'L1_supervised'), 'delta']), 0.002)
+    chk('trueot anchor-vs-plain p', 0.27,
+        float(c.loc[('C1_supervised_anchor', 'L1_supervised'), 'p']), 0.03)
+    chk('trueot weighting delta', 0.016,
+        float(c.loc[('C2_anchor_unweighted', 'C1_supervised_anchor'), 'delta']), 0.002)
+
 # --- identifiability relative spreads --------------------------------------
 i = R / 'identifiability.csv'
 if i.exists():

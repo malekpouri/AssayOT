@@ -25,9 +25,15 @@ anchor beats the full assay-aware formulation. The bottleneck is measurement, no
 architecture.
 
 So the thing we end up recommending is the control, not the proposal: **ordinary
-cross-entropy plus one selection-weighted term on confirmatory labels.** No latent
-structure, no class prior, one extra loss term over a baseline most groups already
-have — and the best model here at ranking what a nuclease actually does.
+cross-entropy plus one auxiliary term on confirmatory labels.** No latent structure, no
+class prior, one extra loss term over a baseline most groups already have — and the
+selection weighting inside that term turns out not to matter either (*p* = 0.65).
+
+With the caveat that matters: its advantage is demonstrated only where the target
+matches the anchor. Worth **+0.148** on the pilot's own confirmatory assay; **+0.032 and
+not significant** on 25 sgRNAs from 9 other laboratories measuring the same thing. What
+*does* replicate externally is the margin over published predictors (+0.095, *p* = 0.011)
+and over CFD (+0.187).
 
 ## What the data actually support
 

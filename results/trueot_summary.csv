@@ -1,0 +1,2 @@
+macro_base_rate,n_guides,n_rows,n_pos,n_studies,train_batch,checkpointing,amp
+0.18874927,25,1034,192,9,1024,1,0
