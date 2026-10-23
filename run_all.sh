@@ -6,7 +6,8 @@ PY=${PY:-.venv/bin/python}
 
 $PY -m src.run prep        # harmonise sources        -> crispr_processed/ + PROVENANCE.md
 $PY -m src.run scan        # candidate space (GPU)    -> candidates_v1.parquet  (~2.5 min)
-$PY -m src.audit_manuscript   # paper's numbers vs the data
+$PY -m src.multiplicity    # Benjamini-Hochberg across all model comparisons
+$PY -m src.audit_manuscript   # the paper's numbers vs the data
 $PY -m src.selfcheck       # assert the invariants the claims rest on
 $PY -m src.run guide       # unseen sgRNA
 $PY -m src.run validated   # confirmatory assay, leave-one-sgRNA-out

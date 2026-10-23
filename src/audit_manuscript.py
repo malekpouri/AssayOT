@@ -170,6 +170,21 @@ if i.exists():
     chk('ident constrained raw sd', 3.7e-4, sd.get('constrained + anchor'), 5e-6)
     chk('ident free raw sd',        5.4e-4, sd.get('free propensity + anchor'), 5e-6)
 
+# --- multiplicity ----------------------------------------------------------
+mp = R / 'metrics_multiplicity.csv'
+if mp.exists():
+    d = pd.read_csv(mp)
+    chk('family size', 23, len(d), 0)
+    chk('surviving BH', 11, int((d.bh_q < 0.05).sum()), 0)
+    chk('nominally sig but not after BH', 3,
+        int(((d.p < 0.05) & (d.bh_q >= 0.05)).sum()), 0)
+    q = d.set_index(['a', 'b']).bh_q
+    chk('q, anchored vs read depth', 0.054,
+        float(pd.Series(q.loc[('C1_supervised_anchor', 'score_changeseq_reads')]).min()),
+        0.002)
+    chk('q, anchored vs published CNN external', 0.023,
+        float(pd.Series(q.loc[('C1_supervised_anchor', 'R1_cnn_bilstm')]).min()), 0.002)
+
 # --- benchmark composition -------------------------------------------------
 pairs = pd.read_parquet(C.PAIRS); obs = pd.read_parquet(C.OBS)
 chk('pairs',        219640, len(pairs), 0)
