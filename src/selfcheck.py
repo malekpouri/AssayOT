@@ -113,6 +113,17 @@ def main() -> None:
         check("candidate space contains every substitution-only detection",
               cov == 1.0, f"coverage {cov:.6%} of {len(det):,}")
 
+    # --- sgRNA counts -------------------------------------------------------
+    # The cellular sheet carries 60 distinct *labels* for 57 distinct sgRNAs: three
+    # are typographic variants of sgRNAs also present under correct labels, and one
+    # (LAG_site_3 -> LAG3_site_3) is a misspelling of an sgRNA appearing nowhere else.
+    # The 60 has been quoted in error twice, so it is pinned here.
+    pil_g = pairs[pairs.source_set.eq("pilot")]
+    n_cell = pil_g[pil_g.detected_guideseq.fillna(False).astype(bool)].guide_sample.nunique()
+    check("57 sgRNAs have cellular detections, not the 60 distinct labels",
+          n_cell == 57 and pil_g.guide_sample.nunique() == 110,
+          f"{pil_g.guide_sample.nunique()} pilot sgRNAs, {n_cell} with GUIDE-seq")
+
     # --- splits -------------------------------------------------------------
     check("the split key is the sequence pair, not the locus",
           "seq_key" in pairs.columns

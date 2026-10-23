@@ -143,16 +143,26 @@ def fig_identifiability():
     if not p.exists():
         return _placeholder("fig5_identifiability", "run `src.run identify`")
     d = pd.read_csv(p)
+    # Plot the fit in total nats, not as a per-row mean. A per-row mean of -0.0036
+    # against -0.0043 invites the reader to call the difference negligible; over the
+    # evaluation set it is ~150 nats, which is not negligible at all. The figure must
+    # not understate the very quantity the section is arguing about.
+    if "report_loglik_total_nats" in d.columns:
+        x = d.report_loglik_total_nats
+        xlab = "log-likelihood of the observed reports, total nats (higher = better fit)"
+    else:
+        x = d.report_loglik
+        xlab = "log-likelihood of the observed reports, per row (higher = better fit)"
     fig, ax = plt.subplots(figsize=(4.4, 3.0))
-    ax.scatter(d.report_loglik, d.activity_sd_across_seeds, s=55, color=BLUE,
+    ax.scatter(x, d.activity_sd_across_seeds, s=55, color=BLUE,
                edgecolor="white", linewidth=0.8, zorder=3)
-    for r in d.itertuples():
-        ax.annotate(r.config, (r.report_loglik, r.activity_sd_across_seeds),
+    for xi, r in zip(x, d.itertuples()):
+        ax.annotate(r.config, (xi, r.activity_sd_across_seeds),
                     textcoords="offset points", xytext=(7, 4), fontsize=7.5,
                     color=INK2)
-    ax.set_xlabel("log-likelihood of the observed reports (higher = better fit)")
+    ax.set_xlabel(xlab)
     ax.set_ylabel("s.d. of recovered activity\nacross initialisations")
-    ax.set_title("Equal fit, different answers = not identified", loc="left")
+    ax.set_title("Better fit, less reproducible factorisation", loc="left")
     _save(fig, "fig5_identifiability")
 
 

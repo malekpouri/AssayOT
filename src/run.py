@@ -177,7 +177,7 @@ def protocol_validated(epochs: int = EPOCHS) -> None:
             continue
         te = B.score_all(te)
         te["score_changeseq_reads"] = B.changeseq_reads_score(te, obs)
-        for level in PRIMARY_LEVELS + ["A_no_validation"]:
+        for level in PRIMARY_LEVELS + ["A_no_validation", "C1_supervised_anchor"]:
             model = X.train(fr, tr_g, level=level, epochs=epochs, ratio=RATIO,
                             seed=C.SEED, verbose=False)
             p = X.predict(model, fr, te, context=C.CTX_INCELL, assay="TagSeq")
@@ -433,7 +433,7 @@ def protocol_prior(epochs: int = EPOCHS,
           .pivot(index="prior", columns="metric", values="value").round(4).to_string())
 
 
-def protocol_identify(epochs: int = EPOCHS, n_seeds: int = 3) -> None:
+def protocol_identify(epochs: int = EPOCHS, n_seeds: int = 8) -> None:
     """Is the activity/detection split pinned down by the data, or only their product?
 
     Each configuration is fitted from several random initialisations. For each we
@@ -473,7 +473,11 @@ def protocol_identify(epochs: int = EPOCHS, n_seeds: int = 3) -> None:
              (1 - y) * np.log(np.clip(1 - q, 1e-7, 1))).mean() for q in Q])
         rec.append(dict(
             config=label, level=level,
+            n_seeds=int(n_seeds), n_eval_rows=int(len(eva)),
+            # the fit is a per-row mean, so it is only interpretable against the row
+            # count: the paper quotes the total in nats, not this number as a percentage
             report_loglik=float(ll),
+            report_loglik_total_nats=float(ll * len(eva)),
             activity_sd_across_seeds=float(P.std(0).mean()),
             activity_range_across_seeds=float((P.max(0) - P.min(0)).mean()),
             report_sd_across_seeds=float(Q.std(0).mean()),

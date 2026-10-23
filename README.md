@@ -73,8 +73,12 @@ branch has to represent.
 | `src/model.py` | shared pair encoder, per-context activity heads, capacity-constrained observation branch |
 | `src/experiment.py` | sgRNA clustering, splits, the validation-selection model, training loop |
 | `src/baselines.py` | mismatch count, position-weighted score, published CFD |
+| `src/baselines_ref.py` | two published architectures reimplemented and trained on these folds: a convolution-plus-BiLSTM (CRISPR-Net family) and gradient boosting over position-by-substitution indicators (Elevation/CFD family). Reimplemented rather than downloaded, so the comparison is not confounded by their training corpora and label conventions |
+| `src/trueot.py` | the external measured-activity benchmark (TrueOT, Kota et al.), harmonised; enforces the two leakage exclusions — the pilot study is *in* TrueOT, and 7 further sgRNAs are pilot spacers |
 | `src/metrics.py` | per-sgRNA ranking, macro-averages, guide-level bootstrap, calibration, risk–coverage |
 | `src/run.py` | one protocol per subcommand |
+| `src/run_trueot.py` | external validation on TrueOT: 25 sgRNAs, 9 laboratories, editing measured directly in cells. Train on the pilot, score without refitting |
+| `src/run_reference.py` | the reimplemented architectures, on the same folds as everything else |
 | `src/figures.py`, `src/tables.py` | figures and LaTeX tables, generated from the result CSVs so the paper cannot drift from the numbers |
 | `src/summary.py` | one-screen digest of every result file |
 | `src/audit_manuscript.py` | checks every number quoted in the manuscript against the committed result files; exits non-zero on drift |
@@ -158,6 +162,8 @@ uv pip install --python .venv/bin/python -r requirements.txt
 .venv/bin/python -m src.run semisynth   # masking with a known mechanism
 .venv/bin/python -m src.run prior       # PU class-prior sensitivity
 .venv/bin/python -m src.run identify    # identifiability / sensitivity
+.venv/bin/python -m src.run_trueot            # external benchmark: measured editing
+.venv/bin/python -m src.run_reference all     # reimplemented published architectures
 .venv/bin/python -m src.figures && .venv/bin/python -m src.tables
 ```
 

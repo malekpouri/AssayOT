@@ -27,6 +27,7 @@ PRETTY = {
     "A_free_prop": "-- with an unconstrained propensity",
     "A_no_fp": "-- without the false-positive term",
     "I_constant_prop": "-- with a constant propensity",
+    "C1_supervised_anchor": "C1 supervised $+$ confirmatory anchor (control)",
     "baseline_mismatch_count": "mismatch count",
     "baseline_position_weighted": "position-weighted mismatches",
     "baseline_cfd": "CFD",
@@ -315,6 +316,13 @@ def main() -> None:
         "Confirmatory-assay protocol, leave-one-sgRNA-out over the six sgRNAs with "
         "targeted validation. Conclusions are restricted to this subpopulation: sites "
         "were selected for confirmation by a documented rule, not sampled at random."))
+    table_metrics("trueot", metrics=("ap", "auroc"), caption=(
+        "External measured-activity benchmark (TrueOT): editing quantified directly in "
+        "cells across 9 published studies, positive above the same 0.1\\% floor used "
+        "here, macro-averaged over the 25 evaluable sgRNAs with 95\\% bootstrap "
+        "intervals over sgRNAs. No TrueOT row is trained on: the pilot study's own 507 "
+        "rows and a further 59 rows carrying pilot spacers are excluded, so every "
+        "sgRNA scored here is unseen as a sequence."))
     table_metrics("study", metrics=("ap", "auroc"), caption=(
         "Unseen-study protocol on the external labelled rows."))
     table_metrics("tech", metrics=("ap", "auroc"), caption=(

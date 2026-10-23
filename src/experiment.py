@@ -389,6 +389,13 @@ LEVELS = {
     # anchor and the false-positive term fixed, so the contrast with L3_assay and
     # A_free_prop is single-factor.
     "I_constant_prop": dict(mode="constant",    use_val=True,  fp=True,  loss="obs"),
+    # Control for the confirmatory protocol only. The plain supervised model, which
+    # treats every unreported candidate as a biological negative, PLUS the same
+    # inverse-selection-weighted confirmatory term that L3_assay gets -- and nothing
+    # else: no observation branch, no false-positive term. It separates "the
+    # assay-aware formulation helps" from "training on the target assay's labels
+    # helps", which the L3 vs L1 contrast alone cannot do.
+    "C1_supervised_anchor": dict(mode="constant", use_val=True, fp=False, loss="bce"),
 }
 
 
