@@ -51,6 +51,13 @@ chk('guide R1 AP',      0.660, ap('metrics_guide_reference.csv', 'R1_cnn_bilstm'
 chk('guide R2 AP',      0.659, ap('metrics_guide_reference.csv', 'R2_gbt_elevation'))
 chk('valid R1 AP',      0.653, ap('metrics_validated_reference.csv', 'R1_cnn_bilstm'))
 chk('valid R2 AP',      0.580, ap('metrics_validated_reference.csv', 'R2_gbt_elevation'))
+# the abstract's CFD-margin range, which was briefly quoted wrongly as 0.18-0.21
+_g = pd.read_csv(R / 'metrics_guide.csv'); _g = _g[_g.metric.eq('ap')]
+_cfd_g = float(_g[_g.model.eq('baseline_cfd')].value.iloc[0])
+_m = [float(_g[_g.model.eq(m)].value.iloc[0]) - _cfd_g
+      for m in ('L1_supervised', 'L2_nnpu', 'L3_assay')]
+chk('abstract CFD margin, reports lo', 0.13, min(_m), 0.005)
+chk('abstract CFD margin, reports hi', 0.25, max(_m), 0.005)
 chk('valid reads AP',   0.660, ap('metrics_validated.csv', 'baseline_changeseq_reads'))
 chk('valid noanchor',   0.605, ap('metrics_validated.csv', 'A_no_validation'))
 chk('study L1 AP',      0.851, ap('metrics_study.csv', 'L1_supervised'))

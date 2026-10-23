@@ -24,6 +24,11 @@ model of the observation process: a plain supervised model handed the same confi
 anchor beats the full assay-aware formulation. The bottleneck is measurement, not
 architecture.
 
+So the thing we end up recommending is the control, not the proposal: **ordinary
+cross-entropy plus one selection-weighted term on confirmatory labels.** No latent
+structure, no class prior, one extra loss term over a baseline most groups already
+have — and the best model here at ranking what a nuclease actually does.
+
 ## What the data actually support
 
 | Question | Answer |
