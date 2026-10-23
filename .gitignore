@@ -41,4 +41,5 @@ results/pred_guide.parquet
 # this repository rather than the article -- are tracked.
 paper/
 paper-csbj/
+paper-spj/
 docs/*.pdf
