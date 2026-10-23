@@ -134,6 +134,19 @@ if cp.exists():
     chk('trueot weighting delta', 0.016,
         float(c.loc[('C2_anchor_unweighted', 'C1_supervised_anchor'), 'delta']), 0.002)
 
+# --- does the two-estimand reversal replicate? -----------------------------
+# The paper's most-promoted claim. Pinned in all three protocols so the direction
+# cannot be misstated: reversed on the pilot's confirmatory assay, NOT reversed on the
+# external benchmark.
+def _l1_minus_l3(f):
+    d = pd.read_csv(R / f); d = d[d.metric.eq('ap')]
+    return (float(d[d.model.eq('L1_supervised')].value.iloc[0])
+            - float(d[d.model.eq('L3_assay')].value.iloc[0]))
+chk('reversal, reports',          0.058, _l1_minus_l3('metrics_guide.csv'), 0.002)
+chk('reversal, pilot activity',  -0.113, _l1_minus_l3('metrics_validated.csv'), 0.002)
+if (R / 'metrics_trueot.csv').exists():
+    chk('reversal, external activity', 0.021, _l1_minus_l3('metrics_trueot.csv'), 0.002)
+
 # --- identifiability relative spreads --------------------------------------
 i = R / 'identifiability.csv'
 if i.exists():
