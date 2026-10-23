@@ -406,11 +406,18 @@ LEVELS = {
 }
 
 
+#: The training batch the paper reports. Overridable because this model needs ~4 GiB
+#: at batch 8192 and the card is shared; any run at another value is a documented
+#: deviation, and every protocol records the value it used.
+BATCH_DEFAULT = int(os.environ.get("ASSAYOT_BATCH", 8192))
+
+
 def train(frame: Frame, train_guides, level: str = "L3_assay",
           epochs: int = 12, lr: float = 2e-3, ratio: int = 5,
-          batch: int = 8192, prior: float = 0.02, lam_val: float = 1.0,
+          batch: int | None = None, prior: float = 0.02, lam_val: float = 1.0,
           lam_hier: float = 1e-3, seed: int = 0, verbose: bool = True):
     cfg = LEVELS[level]
+    batch = BATCH_DEFAULT if batch is None else batch
     torch.manual_seed(seed)
     tr = frame.obs[frame.obs.guide_sample.isin(train_guides)]
     val = frame.val[frame.val.guide_sample.isin(train_guides)] if cfg["use_val"] else None

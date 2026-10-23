@@ -90,9 +90,14 @@ def main(epochs: int = EPOCHS) -> None:
 
     # the base rate a random ranker would reach, for reading the AP column against
     br = d.groupby("guide_sample").y.mean().mean()
+    import os
     pd.DataFrame([dict(macro_base_rate=br, n_guides=d.guide_sample.nunique(),
                        n_rows=len(d), n_pos=int(d.y.sum()),
-                       n_studies=d.study_id.nunique())]).to_csv(
+                       n_studies=d.study_id.nunique(),
+                       # recorded so the paper cannot misstate the configuration
+                       train_batch=X.BATCH_DEFAULT,
+                       checkpointing=os.environ.get("ASSAYOT_CHECKPOINT", "0"),
+                       amp=os.environ.get("ASSAYOT_AMP", "0"))]).to_csv(
         C.RESULTS / "trueot_summary.csv", index=False)
 
     print(f"\n== TrueOT (macro base rate {br:.3f}) ==")
