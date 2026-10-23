@@ -170,6 +170,21 @@ if i.exists():
     chk('ident constrained raw sd', 3.7e-4, sd.get('constrained + anchor'), 5e-6)
     chk('ident free raw sd',        5.4e-4, sd.get('free propensity + anchor'), 5e-6)
 
+# --- DOME reporting items the paper now quotes ------------------------------
+from src import model as _mdl
+_m = _mdl.AssayAwareModel(n_assay=22, n_study=45, n_tab=11,
+                          propensity_mode='constrained', model_false_positive=True)
+chk('model parameters', 671617, sum(p.numel() for p in _m.parameters()), 0)
+chk('encoder parameters', 651648, sum(p.numel() for p in _m.encoder.parameters()), 0)
+del _m
+sb = R / 'split_class_balance.csv'
+if sb.exists():
+    _b = pd.read_csv(sb)
+    chk('train positive rate, min %', 0.063, 100 * _b.train_pos_rate.min(), 0.002)
+    chk('train positive rate, max %', 0.121, 100 * _b.train_pos_rate.max(), 0.002)
+    chk('held-out positive rate, min %', 0.021, 100 * _b.test_pos_rate.min(), 0.002)
+    chk('held-out positive rate, max %', 0.230, 100 * _b.test_pos_rate.max(), 0.002)
+
 # --- do the stated statistics match the code? ------------------------------
 # The Methods quote the resample counts; if the defaults change, the paper is wrong.
 import inspect as _inspect
