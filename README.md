@@ -10,7 +10,7 @@ measurements rather than assumptions.
 
 <p align="center">
   <img src="docs/figures/fig9_two_estimands.png" width="620"
-       alt="Slope chart: the supervised model scores 0.711 average precision at ranking what an assay reports and 0.601 at ranking what a confirmatory assay measures, while the assay-aware model scores 0.652 and 0.725. The two lines cross.">
+       alt="Slope chart: the supervised model scores 0.711 average precision at ranking what an assay reports and 0.602 at ranking what a confirmatory assay measures, while the assay-aware model scores 0.652 and 0.714. The two lines cross.">
 </p>
 
 The central result is that **there is no single best model, because there is no single
@@ -18,14 +18,20 @@ quantity.** Ranking what an assay *reports* and ranking what a nuclease *does* a
 different targets, and the ordering of methods reverses between them. The published
 record contains far more of the first than the second.
 
+The second result is a negative one about the method this repository proposes. What
+flips the ordering is **supervision from an assay that measures activity**, not the
+model of the observation process: a plain supervised model handed the same confirmatory
+anchor beats the full assay-aware formulation. The bottleneck is measurement, not
+architecture.
+
 ## What the data actually support
 
 | Question | Answer |
 |---|---|
 | Is "unreported" a safe negative? | **At the assay's own 0.1% sensitivity, yes** — only 0.9% of sites a cellular assay missed show real editing. Below that floor, up to 22.5% do. |
-| Does modelling the observation process help? | **Only for the right target.** It costs 0.058 average precision at predicting reports and gains 0.124 at predicting measured activity. |
+| Does modelling the observation process help? | **No — and a control shows why.** Give a plain supervised model the *same* confirmatory anchor and no observation model at all, and it is the best of everything tested (0.750 vs 0.714). The anchor carries the gain; the latent-variable machinery adds nothing detectable. This is the study's principal negative result, and it is about our own proposal. |
 | Can activity and detection be separated? | **Only under a declared constraint.** Configurations fitting the reports equally well disagree more and more about activity as the detection branch is freed (36% → 44% → 59% spread). |
-| Does it beat what practitioners already do? | **Not demonstrably.** Ranking by in-vitro read depth reaches 0.660 against the model's 0.725, and the gap is not significant on six sgRNAs (*p* = 0.079). |
+| Does it beat what practitioners already do? | **Marginally, and only once anchored.** Ranking by in-vitro read depth reaches 0.660, needing no training at all; the anchored models beat it by 0.055–0.090 (*p* = 0.033), on intervals that nearly touch zero across six sgRNAs. Unanchored models do not beat it. |
 
 ### The number everyone quotes is a choice, not a finding
 

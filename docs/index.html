@@ -143,7 +143,7 @@ them — and the published record contains far more of the first than the second
 
 <figure>
   <img src="figures/fig9_two_estimands.png"
-       alt="Slope chart. The supervised model scores 0.711 average precision at ranking what an assay reports and 0.601 at ranking what a confirmatory assay measures. The assay-aware model scores 0.652 and 0.725. The two lines cross between the panels.">
+       alt="Slope chart. The supervised model scores 0.711 average precision at ranking what an assay reports and 0.602 at ranking what a confirmatory assay measures. The assay-aware model scores 0.652 and 0.714. The two lines cross between the panels.">
   <figcaption>Macro average precision with 95% bootstrap intervals over held-out
   guide RNAs, for the same two models scored on two different targets. Each model wins
   on the target it is aimed at: the supervised model is trained on exactly the label the
@@ -154,8 +154,8 @@ them — and the published record contains far more of the first than the second
 <div class="cards">
   <div class="card c-blue"><span class="n">+0.058</span>
     <span class="l">supervised model’s edge at predicting what an assay reports</span></div>
-  <div class="card c-orange"><span class="n">+0.124</span>
-    <span class="l">assay-aware model’s edge at predicting measured activity</span></div>
+  <div class="card c-orange"><span class="n">+0.148</span>
+    <span class="l">edge from a confirmatory anchor alone, with no observation model</span></div>
   <div class="card c-aqua"><span class="n">100.0000%</span>
     <span class="l">of released detections inside the enumerated candidate space</span></div>
 </div>
@@ -169,16 +169,20 @@ them — and the published record contains far more of the first than the second
         <td><strong>At the assay’s own 0.1% sensitivity, yes</strong> — only 0.9% of
         sites a cellular assay missed show real editing. Below that floor, up to 22.5% do.</td></tr>
     <tr><td>Does modelling the observation process help?</td>
-        <td><strong>Only for the right target.</strong> It costs 0.058 average precision
-        at predicting reports and gains 0.124 at predicting measured activity.</td></tr>
+        <td><strong>No — a control says otherwise.</strong> A plain supervised model given
+        the <em>same</em> confirmatory anchor, and no observation model at all, is the best
+        of everything tested: 0.750 against 0.714. The anchor carries the gain. This is
+        the study’s principal negative result, and it is about its own proposal.</td></tr>
     <tr><td>Can activity and detection be separated?</td>
-        <td><strong>Only under a declared constraint.</strong> Configurations fitting the
-        reports equally well disagree more and more about activity as the detection
-        branch is freed — 36% → 44% → 59% spread across initialisations.</td></tr>
+        <td><strong>Only under a declared constraint.</strong> Configurations that fit the
+        reports to within ~150 nats over 200,000 rows disagree more and more about
+        activity as the detection branch is freed — a widening spread across
+        initialisations.</td></tr>
     <tr><td>Does it beat what practitioners already do?</td>
-        <td><strong>Not demonstrably.</strong> Ranking by in-vitro read depth reaches
-        0.660 against the model’s 0.725, and the gap is not significant on six guide
-        RNAs (<span class="num">p = 0.079</span>).</td></tr>
+        <td><strong>Marginally, and only once anchored.</strong> Ranking by in-vitro read
+        depth reaches 0.660 with no training at all; anchored models beat it by
+        0.055–0.090 (<span class="num">p = 0.033</span>), on intervals that nearly touch
+        zero across six guide RNAs. Unanchored models do not beat it.</td></tr>
   </tbody>
 </table>
 
