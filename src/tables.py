@@ -28,6 +28,8 @@ PRETTY = {
     "A_no_fp": "-- without the false-positive term",
     "I_constant_prop": "-- with a constant propensity",
     "C1_supervised_anchor": "C1 supervised $+$ confirmatory anchor (control)",
+    "R1_cnn_bilstm": "R1 CNN\\,$+$\\,BiLSTM (CRISPR-Net family)",
+    "R2_gbt_elevation": "R2 boosted substitution indicators (Elevation family)",
     "baseline_mismatch_count": "mismatch count",
     "baseline_position_weighted": "position-weighted mismatches",
     "baseline_cfd": "CFD",
@@ -301,6 +303,47 @@ def table_semisynth() -> None:
     _write("table_semisynth.tex", "\n".join(body))
 
 
+def table_reference() -> None:
+    """The paper's models beside the reimplemented published architectures.
+
+    Both protocols in one table, because the point is that the ordering differs between
+    them and a reader should not have to hold two tables in mind to see it.
+    """
+    rows = []
+    for tag, label in (("guide", "reports"), ("validated", "measured activity")):
+        own = C.RESULTS / f"metrics_{tag}.csv"
+        ref = C.RESULTS / f"metrics_{tag}_reference.csv"
+        if not (own.exists() and ref.exists()):
+            return
+        d = pd.concat([pd.read_csv(own), pd.read_csv(ref)])
+        d = d[d.metric.eq("ap") & ~d.model.astype(str).str.startswith("A_")
+              & ~d.model.astype(str).str.contains(r"\[report\]")]
+        rows.append((label, d.set_index("model")))
+    models = ["C1_supervised_anchor", "L3_assay", "L1_supervised", "L2_nnpu",
+              "R1_cnn_bilstm", "R2_gbt_elevation", "baseline_changeseq_reads",
+              "baseline_cfd"]
+    body = [
+        r"\begin{table}[htbp]\centering\small",
+        r"\caption{Macro average precision against the reimplemented published "
+        r"architectures, on both estimands. R1 is a convolutional-recurrent network of "
+        r"the CRISPR-Net family, R2 gradient boosting over position-by-substitution "
+        r"indicators of the Elevation family; both are fitted on these folds with the "
+        r"labelling convention they are published with, so the comparison does not "
+        r"confound another training corpus. Intervals are guide-level bootstraps; the "
+        r"left column has 57 held-out sgRNAs and the right has 6.}",
+        r"\label{tab:reference}",
+        r"\begin{tabular}{@{}lrr@{}}\toprule",
+        r"Model & AP, reports & AP, measured activity \\\midrule",
+    ]
+    for m in models:
+        cells = []
+        for _, d in rows:
+            cells.append(_ci(d.loc[m]) if m in d.index else "--")
+        body.append(f"{pretty(m)} & " + " & ".join(cells) + r" \\")
+    body.append(r"\bottomrule\end{tabular}\end{table}")
+    _write("table_reference.tex", "\n".join(body))
+
+
 def main() -> None:
     print("tables ->", TAB)
     table_data()
@@ -316,6 +359,7 @@ def main() -> None:
         "Confirmatory-assay protocol, leave-one-sgRNA-out over the six sgRNAs with "
         "targeted validation. Conclusions are restricted to this subpopulation: sites "
         "were selected for confirmation by a documented rule, not sampled at random."))
+    table_reference()
     table_metrics("trueot", metrics=("ap", "auroc"), caption=(
         "External measured-activity benchmark (TrueOT): editing quantified directly in "
         "cells across 9 published studies, positive above the same 0.1\\% floor used "
