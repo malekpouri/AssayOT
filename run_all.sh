@@ -6,6 +6,7 @@ PY=${PY:-.venv/bin/python}
 
 $PY -m src.run prep        # harmonise sources        -> crispr_processed/ + PROVENANCE.md
 $PY -m src.run scan        # candidate space (GPU)    -> candidates_v1.parquet  (~2.5 min)
+$PY -m src.floor_depth       # is the hidden-activity curve depth-confounded?
 $PY -m src.multiplicity    # Benjamini-Hochberg across all model comparisons
 $PY -m src.audit_manuscript   # the paper's numbers vs the data
 $PY -m src.selfcheck       # assert the invariants the claims rest on

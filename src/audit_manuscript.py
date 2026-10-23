@@ -170,6 +170,24 @@ if i.exists():
     chk('ident constrained raw sd', 3.7e-4, sd.get('constrained + anchor'), 5e-6)
     chk('ident free raw sd',        5.4e-4, sd.get('free propensity + anchor'), 5e-6)
 
+# --- is the floor curve depth-confounded? ----------------------------------
+fd = R / 'floor_depth.csv'
+if fd.exists():
+    d = pd.read_csv(fd).set_index('endpoint')
+    chk('floor any-effect pct', 22.5, float(d.loc['any_effect_size','pct_overall']), 0.1)
+    chk('floor depth rho (any effect)', 0.12,
+        float(d.loc['any_effect_size','spearman_rho']), 0.01)
+    chk('floor depth p (any effect)', 0.006,
+        float(d.loc['any_effect_size','spearman_p']), 0.001)
+    chk('floor pct, lowest depth quartile', 17.1,
+        float(d.loc['any_effect_size','pct_depth_Q1']), 0.1)
+    chk('floor pct, highest depth quartile', 31.4,
+        float(d.loc['any_effect_size','pct_depth_Q4']), 0.1)
+    chk('floor depth rho at 0.1pct', 0.01,
+        float(d.loc['at_0.1pct_floor','spearman_rho']), 0.01)
+    c = pd.read_csv(R / 'floor_depth_coverage.csv').iloc[0]
+    chk('floor depth fold range', 403, float(c.depth_fold_range), 1)
+
 # --- multiplicity ----------------------------------------------------------
 mp = R / 'metrics_multiplicity.csv'
 if mp.exists():
