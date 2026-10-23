@@ -100,6 +100,8 @@ branch has to represent.
 | `src/summary.py` | one-screen digest of every result file |
 | `src/audit_manuscript.py` | checks every number quoted in the manuscript against the committed result files; exits non-zero on drift |
 | `src/multiplicity.py` | Benjamini–Hochberg across every model comparison the paper reports. 11 of 23 survive at *q* < 0.05; three nominally significant contrasts do not, and the paper says so |
+| `src/floor_depth.py` | tests whether the hidden-activity curve is confounded by sequencing depth. Its upper end is (17.1% → 31.4% across depth quartiles, *p* = 0.006); the 0.1% end is not |
+| `src/check_refs.py` | resolves every DOI in the bibliography against Crossref and compares titles; run before submission |
 | `src/selfcheck.py` | asserts the invariants the paper's claims rest on; run it after `prep` and `scan` |
 | `src/cfd_to_json.py` | one-off conversion of the published CFD pickles to JSON, behind a restricted unpickler |
 | `results/` | metric CSVs, per-sgRNA rankings, the pre-registered `ANALYSIS_PLAN.md` with its amendments, and the generated `PROVENANCE.md`. Per-row predictions are included except `pred_guide.parquet` (234 MB, past GitHub's file limit); regenerate it with `python -m src.run guide`, which is deterministic given the frozen seed |
