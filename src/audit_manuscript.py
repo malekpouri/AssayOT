@@ -170,6 +170,15 @@ if i.exists():
     chk('ident constrained raw sd', 3.7e-4, sd.get('constrained + anchor'), 5e-6)
     chk('ident free raw sd',        5.4e-4, sd.get('free propensity + anchor'), 5e-6)
 
+# --- do the stated statistics match the code? ------------------------------
+# The Methods quote the resample counts; if the defaults change, the paper is wrong.
+import inspect as _inspect
+from src import metrics as _M
+_sig = _inspect.signature(_M.macro_summary)
+chk('stated bootstrap resamples (macro)', 2000, _sig.parameters['n_boot'].default, 0)
+_sig2 = _inspect.signature(_M.paired_guide_bootstrap)
+chk('stated bootstrap resamples (paired)', 5000, _sig2.parameters['n_boot'].default, 0)
+
 # --- is the floor curve depth-confounded? ----------------------------------
 fd = R / 'floor_depth.csv'
 if fd.exists():
