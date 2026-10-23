@@ -43,3 +43,6 @@ paper/
 paper-csbj/
 paper-spj/
 docs/*.pdf
+
+# Submission paperwork travels with the manuscript, not the code repository.
+submission/
