@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this software or the harmonised benchmark, please cite the paper below."
-title: "AssayOT: assay-aware learning from incomplete labels for cross-study CRISPR-Cas9 off-target prediction"
+title: "AssayOT: reports are not cleavage - two estimands in cross-study CRISPR-Cas9 off-target prediction"
 abstract: >-
   Code, harmonised provenance-aware benchmark and manuscript for separating cellular
   cleavage activity from laboratory detection in CRISPR-Cas9 off-target data, under

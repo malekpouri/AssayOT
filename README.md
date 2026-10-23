@@ -190,7 +190,7 @@ analysis plan and all result tables — and the paper will be linked here once p
 If you use the code or the harmonised benchmark, please cite the paper (see
 `CITATION.cff`, which GitHub renders as a citation widget):
 
-> Malekpouri M., Lotfi S. *Assay-aware learning from incomplete labels for cross-study
+> Malekpouri M., Lotfi S. *Reports are not cleavage: two estimands in cross-study
 > CRISPR--Cas9 off-target prediction.*
 
 Repository: <https://github.com/malekpouri/AssayOT>

@@ -95,6 +95,9 @@ if s.exists():
     for m, rnd, sig in [('L1_supervised',0.336,0.280),('L2_nnpu',0.334,0.224),
                         ('L3_assay',0.303,0.261)]:
         chk(f'semisynth {m} random', rnd, float(pv.loc[m,'random']), 1e-3)
+        # the absolute values the paper now quotes alongside the relative ones, so the
+        # "degrades least" figure can never again stand without them
+
         chk(f'semisynth {m} signal', sig, float(pv.loc[m,'signal_dependent']), 1e-3)
 
 # --- identifiability relative spreads --------------------------------------
