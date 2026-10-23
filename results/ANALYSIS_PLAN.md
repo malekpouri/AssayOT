@@ -152,3 +152,65 @@ known sgRNA by its target sequence. Matching on the name alone silently discarde
 cellular detections, and made the number of sgRNAs with cellular profiling look like 60
 when it is 57. Found while reconciling a row count between the source table and the
 harmonised observations.
+
+---
+
+## Post-hoc additions
+
+A1–A7 were decided before or during fitting and are amendments in the ordinary sense.
+Everything below was added **after** the primary results were in hand, during an
+adversarial review of the manuscript. They are separated here rather than folded into
+the list above, because a reader entitled to rely on a pre-registered plan is entitled
+to know which analyses the plan did not anticipate. None of them was chosen after
+seeing whether it would favour our model; several did not.
+
+**P1. The anchored control (`C1_supervised_anchor`).** The pre-registered levels were
+L1 (supervised), L2 (nnPU) and L3 (assay-aware), with ablations removing components of
+L3. That design cannot separate "the assay-aware formulation helps" from "training on
+the target assay's labels helps", because only L3 receives the confirmatory labels. The
+control — L1 plus the identical confirmatory term, no observation model — was added to
+break that confound. It became the best model on the confirmatory protocol and is the
+study's principal negative result. **Prompted by the confound, not by the outcome; the
+outcome was against the pre-registered hypothesis.**
+
+**P2. The unweighted-anchor ablation (`C2_anchor_unweighted`).** Once P1 showed the
+anchor rather than the observation model carried the result, the inverse-selection
+weighting inside the anchor became the open question. C2 holds everything fixed and sets
+every confirmatory weight to 1. The weighting proved inert (+0.016 in favour of no
+weighting, p=0.65).
+
+**P3. External validation on TrueOT.** Not in the plan, which specified the pilot's own
+confirmatory subset as the primary outcome. Six sgRNAs from one laboratory is too narrow
+a base for the paper's central claim, and an external benchmark of the same estimand
+exists. 1,073 rows, 192 positive, 25 evaluable sgRNAs, 9 studies, after excluding the
+pilot study (which TrueOT contains) and seven sgRNAs whose spacers are in the pilot.
+**It did not confirm the anchor advantage or the method-ordering reversal.** Added
+knowing it might not, and reported as it came out.
+
+**P4. Reimplemented published architectures (`R1`, `R2`).** The plan named CFD, a
+mismatch count and a position-weighted score as baselines. Those are a 2016 lookup table
+and two trivial scores, which is not a fair test of whether this work improves on what
+the field uses. Two published architectures were reimplemented and fitted on the same
+folds under the same labelling convention. Both proved strong (highest AUROC of any
+model on the unseen-sgRNA protocol), which is what makes the comparison worth reading.
+
+**P5. Multiplicity correction across model comparisons.** The plan fixed
+Benjamini–Hochberg for the detection-floor analysis and said nothing about comparisons
+between models, of which 23 are reported. BH is applied across that family and the
+adjusted value is given wherever it changes the reading. Three nominally significant
+contrasts do not survive, two of them claims the paper had made.
+
+**P6. Depth-confound check on the detection-floor curve.** The curve's upper end counts
+significant elevations, and significance buys more with more reads. Read depth across
+these sites spans 403-fold, and the upper end does track it (17.1% to 31.4% across depth
+quartiles, p=0.006) while the 0.1% end does not. The plan did not anticipate this, and
+the headline model-free result is qualified accordingly.
+
+**P7. One configuration deviation.** The external-benchmark models were trained at batch
+1024 with activation checkpointing instead of the batch 8192 used everywhere else,
+because a shared GPU left 1.9 GiB against the ~4 GiB that configuration needs. Every
+model in that table was trained identically, so its internal comparisons hold; its
+absolute values are not compared with the other protocols'. The 8-seed identifiability
+rerun and the seed-variance study were **not** run at a reduced batch for the same
+reason in reverse — their purpose is comparability with the reported configuration — and
+are therefore outstanding rather than substituted.
