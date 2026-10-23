@@ -106,6 +106,19 @@ if i.exists():
     chk('ident constrained rel', 0.44, m.get('constrained + anchor'), 0.01)
     chk('ident free rel',        0.59, m.get('free propensity + anchor'), 0.01)
     chk('ident no-anchor rel',   0.24, m.get('constrained, no anchor'), 0.01)
+    # The paper's correction: these are per-row means over a 200,000-row evaluation
+    # set, so the fit spread is ~150 nats in total, not "under 20%". Pinned so the
+    # retracted framing cannot creep back in.
+    n_eval = int(d.n_eval_rows.iloc[0]) if 'n_eval_rows' in d.columns else 200_000
+    nats = d.report_loglik * n_eval
+    chk('ident fit spread, nats', 150, float(nats.max() - nats.min()), 2)
+    tri = dict(zip(d.config, nats))
+    chk('ident capacity fit gain, nats', 57,
+        float(tri['free propensity + anchor'] - tri['constant propensity']), 2)
+    sd = dict(zip(d.config, d.activity_sd_across_seeds))
+    chk('ident constant raw sd',    3.1e-4, sd.get('constant propensity'), 5e-6)
+    chk('ident constrained raw sd', 3.7e-4, sd.get('constrained + anchor'), 5e-6)
+    chk('ident free raw sd',        5.4e-4, sd.get('free propensity + anchor'), 5e-6)
 
 # --- benchmark composition -------------------------------------------------
 pairs = pd.read_parquet(C.PAIRS); obs = pd.read_parquet(C.OBS)
