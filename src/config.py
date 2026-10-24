@@ -11,10 +11,12 @@ from pathlib import Path
 
 # --- paths -------------------------------------------------------------------
 
-DATA = Path(os.environ.get(
-    "ASSAYOT_DATA",
-    "/home/alan/Downloads/Human genomes Dataset/new_idea/datasets",
-))
+# Point ASSAYOT_DATA at the dataset folder described in datasets/MANIFEST.md. The
+# default is a sibling `datasets/` directory beside this project; it is deliberately
+# relative, because an absolute path here would publish one contributor's home
+# directory layout.
+_DEFAULT_DATA = Path(__file__).resolve().parents[2] / "datasets"
+DATA = Path(os.environ.get("ASSAYOT_DATA", _DEFAULT_DATA))
 PROJ = Path(__file__).resolve().parent.parent
 RESULTS = PROJ / "results"
 PAPER = PROJ / "paper"

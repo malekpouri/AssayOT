@@ -47,3 +47,18 @@ docs/*.pdf
 
 # Submission paperwork travels with the manuscript, not the code repository.
 submission/
+
+# Internal working notes. ROADMAP-REVISION.md is an adversarial critique log of an
+# unpublished manuscript -- it quotes its numbers and narrates every claim that was
+# withdrawn -- and RESUME.md is a handover note that points at the private manuscript
+# archive. Both are useful to the authors and belong on local disk, not in a public
+# repository, for the same reason the manuscript itself is not here.
+ROADMAP-REVISION.md
+RESUME.md
+
+# Scratch markers written by background job runners
+results/run_logs/done_*
+results/run_logs/fail_*
+results/run_logs/seen*
+results/run_logs/s[0-9]_*
+results/run_logs/m[0-9]_*
