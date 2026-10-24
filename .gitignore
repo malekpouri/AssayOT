@@ -62,3 +62,7 @@ results/run_logs/fail_*
 results/run_logs/seen*
 results/run_logs/s[0-9]_*
 results/run_logs/m[0-9]_*
+
+# transient checkpoint written per configuration by `src.run identify`; removed when
+# the protocol completes
+results/identifiability_partial.csv
