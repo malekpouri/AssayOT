@@ -42,6 +42,7 @@ results/pred_guide.parquet
 paper/
 paper-csbj/
 paper-spj/
+paper-hgt/
 docs/*.pdf
 
 # Submission paperwork travels with the manuscript, not the code repository.
