@@ -1,11 +1,12 @@
 # Two identifiability runs, and which one the submitted manuscript uses
 
-`identifiability.csv` is the **three-seed** run. It is what the submitted manuscript
-quotes, and it is kept as the live file so `src.audit_manuscript` validates the text as
-submitted. A copy is also at `identifiability_3seed.csv`.
+`identifiability.csv` is now the **eight-seed** run, and the manuscript in this working
+tree quotes it. `identifiability_3seed.csv` is the earlier three-seed run, kept because
+**it is what the version submitted to the journal quotes** — if you need to reproduce the
+submitted PDF, restore it as the live file.
 
-`identifiability_8seed.csv` is a later run of the same protocol at the same batch with
-**eight** seeds, completed after submission. It is not yet reflected in any manuscript.
+The submitted manuscript is therefore one revision behind this tree on this one
+analysis, by design: it reports three seeds, says so, and calls the instrument weak.
 
 | configuration | 3 seeds (submitted) | 8 seeds |
 |---|---|---|
@@ -29,10 +30,11 @@ too few, and the diagnostic is in-sample by design", reports the limitation and 
 that a larger seed count "was attempted and not completed". The eight-seed run is the
 completion of that attempt and it supports the claim.
 
-## How to use this at revision
+## Already adopted in this working tree
 
-If a reviewer asks for more initialisations — a likely request given the paper flags the
-weakness itself — the answer already exists. Switch the live file and update, together:
+The eight-seed numbers are now in Results, Materials and Methods, the Discussion,
+`fig5_identifiability` and the audit. If a reviewer asks for more initialisations, the
+answer is ready to send. The items that had to change together were:
 
 * the spreads in Results (section "Is the activity/detection split identified?");
 * "three random initialisations" in Materials and Methods;

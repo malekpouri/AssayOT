@@ -152,23 +152,23 @@ i = R / 'identifiability.csv'
 if i.exists():
     d = pd.read_csv(i); d['rel'] = d.activity_sd_across_seeds / d.activity_mean
     m = dict(zip(d.config, d.rel))
-    chk('ident constant rel',    0.36, m.get('constant propensity'), 0.01)
-    chk('ident constrained rel', 0.44, m.get('constrained + anchor'), 0.01)
-    chk('ident free rel',        0.59, m.get('free propensity + anchor'), 0.01)
-    chk('ident no-anchor rel',   0.24, m.get('constrained, no anchor'), 0.01)
+    chk('ident constant rel',    0.56, m.get('constant propensity'), 0.01)
+    chk('ident constrained rel', 0.68, m.get('constrained + anchor'), 0.01)
+    chk('ident free rel',        0.82, m.get('free propensity + anchor'), 0.01)
+    chk('ident no-anchor rel',   0.30, m.get('constrained, no anchor'), 0.01)
     # The paper's correction: these are per-row means over a 200,000-row evaluation
     # set, so the fit spread is ~150 nats in total, not "under 20%". Pinned so the
     # retracted framing cannot creep back in.
     n_eval = int(d.n_eval_rows.iloc[0]) if 'n_eval_rows' in d.columns else 200_000
     nats = d.report_loglik * n_eval
-    chk('ident fit spread, nats', 150, float(nats.max() - nats.min()), 2)
+    chk('ident fit spread, nats', 187, float(nats.max() - nats.min()), 2)
     tri = dict(zip(d.config, nats))
-    chk('ident capacity fit gain, nats', 57,
+    chk('ident capacity fit gain, nats', 77,
         float(tri['free propensity + anchor'] - tri['constant propensity']), 2)
     sd = dict(zip(d.config, d.activity_sd_across_seeds))
-    chk('ident constant raw sd',    3.1e-4, sd.get('constant propensity'), 5e-6)
-    chk('ident constrained raw sd', 3.7e-4, sd.get('constrained + anchor'), 5e-6)
-    chk('ident free raw sd',        5.4e-4, sd.get('free propensity + anchor'), 5e-6)
+    chk('ident constant raw sd',    4.9e-4, sd.get('constant propensity'), 5e-6)
+    chk('ident constrained raw sd', 5.7e-4, sd.get('constrained + anchor'), 5e-6)
+    chk('ident free raw sd',        6.7e-4, sd.get('free propensity + anchor'), 5e-6)
 
 # --- DOME reporting items the paper now quotes ------------------------------
 from src import model as _mdl
@@ -211,6 +211,23 @@ if fd.exists():
         float(d.loc['at_0.1pct_floor','spearman_rho']), 0.01)
     c = pd.read_csv(R / 'floor_depth_coverage.csv').iloc[0]
     chk('floor depth fold range', 403, float(c.depth_fold_range), 1)
+
+# --- seed-variance study ---------------------------------------------------
+sv = R / 'seedvar_validated.csv'
+if sv.exists():
+    _m = pd.read_csv(sv).set_index('level')
+    chk('seedvar C1 mean AP', 0.733, float(_m.loc['C1_supervised_anchor','mean']), 0.001)
+    chk('seedvar L3 mean AP', 0.715, float(_m.loc['L3_assay','mean']), 0.001)
+    chk('seedvar L1 mean AP', 0.627, float(_m.loc['L1_supervised','mean']), 0.001)
+    _c = pd.read_csv(R / 'seedvar_contrasts.csv').set_index(['a','b'])
+    chk('seedvar C1-L1 mean delta', 0.105,
+        float(_c.loc[('C1_supervised_anchor','L1_supervised'),'mean_delta']), 0.001)
+    chk('seedvar L3-L1 mean delta', 0.088,
+        float(_c.loc[('L3_assay','L1_supervised'),'mean_delta']), 0.001)
+    chk('seedvar C1-L3 mean delta', 0.018,
+        float(_c.loc[('C1_supervised_anchor','L3_assay'),'mean_delta']), 0.001)
+    chk('seedvar signs all stable', 3,
+        int(pd.read_csv(R / 'seedvar_contrasts.csv').sign_stable.sum()), 0)
 
 # --- multiplicity ----------------------------------------------------------
 mp = R / 'metrics_multiplicity.csv'

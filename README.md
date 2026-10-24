@@ -43,7 +43,7 @@ and over CFD (+0.187).
 |---|---|
 | Is "unreported" a safe negative? | **At the assay's own 0.1% sensitivity, yes** — only 0.9% of sites a cellular assay missed show real editing. Below that floor, up to 22.5% do. |
 | Does modelling the observation process help? | **No — and a control shows why.** Give a plain supervised model the *same* confirmatory anchor and no observation model at all, and it is the best of everything tested (0.750 vs 0.714). The anchor carries the gain; the latent-variable machinery adds nothing detectable. This is the study's principal negative result, and it is about our own proposal. |
-| Can activity and detection be separated? | **Only under a declared constraint, and the split is weakly determined.** Freeing the detection branch buys 57 nats of fit to the reports over 200,000 rows and raises the spread of recovered activity across initialisations from 36% to 59%. Capacity buys a little fit and a lot of indeterminacy. |
+| Can activity and detection be separated? | **Only under a declared constraint, and the split is weakly determined.** Freeing the detection branch buys 77 nats of fit to the reports over 200,000 rows and raises the spread of recovered activity across initialisations from 56% to 82%. Capacity buys a little fit and a lot of indeterminacy. |
 | Does it beat what practitioners already do? | **Marginally, and only once anchored.** Ranking by in-vitro read depth reaches 0.660, needing no training at all; the anchored models beat it by 0.055–0.090 (*p* = 0.033), on intervals that nearly touch zero across six sgRNAs. Unanchored models do not beat it. |
 
 ### The number everyone quotes is a choice, not a finding
