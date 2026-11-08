@@ -70,7 +70,9 @@ def main() -> None:
     else:
         problems.append(f"missing {ga}")
 
-    for name in ("title_page.pdf", "highlights.pdf", "graphical_abstract.pdf", "cbc.pdf"):
+    for name in ("title_page.pdf", "highlights.pdf", "highlights.docx",
+                 "graphical_abstract.pdf", "graphical_abstract.png",
+                 "cbc.pdf", "supplement.pdf"):
         p = PKG / name
         print(f"{'' if name == 'title_page.pdf' else ''}  {name}: "
               f"{'present' if p.exists() else 'MISSING'}")
@@ -80,11 +82,26 @@ def main() -> None:
     # the manuscript must not repeat what is uploaded separately
     man = PKG / "cbc.tex"
     if man.exists():
-        t = man.read_text()
+        src = man.read_text()
         for env in ("highlights", "graphicalabstract"):
-            if f"\\begin{{{env}}}" in t:
+            if f"\\begin{{{env}}}" in src:
                 problems.append(f"cbc.tex still contains a {env} environment; it is "
                                 "uploaded as a separate file and would be duplicated")
+        if "input{sections/supplement}" in src:
+            problems.append("cbc.tex still inlines the supplement; it is a separate "
+                            "submission file")
+
+    # a '??' in either PDF means a cross-document reference did not resolve
+    import subprocess
+    for name in ("cbc.pdf", "supplement.pdf"):
+        f = PKG / name
+        if not f.exists():
+            continue
+        out = subprocess.run(["pdftotext", str(f), "-"], capture_output=True,
+                             text=True).stdout
+        if "??" in out:
+            problems.append(f"{name} contains '??': an xr cross-reference is "
+                            "unresolved. Run `make` in paper-cbc/ to build both twice")
 
     print()
     if problems:
